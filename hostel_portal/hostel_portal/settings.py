@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,10 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure--k^i@#ri*g!a*yb(iaea!)kgw6_ab^0uq!cule83zj5wjf5!kx'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 
-ALLOWED_HOSTS = []
-
+# ALLOWED_HOSTS = []
+DEBUG = config('DEBUG', default=False, cast=bool)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost').split(',')
 
 # Application definition
 
@@ -145,8 +147,10 @@ LOGIN_URL = 'google_login_redirect'         # 👈 This should match your redire
 LOGIN_REDIRECT_URL = 'profile_edit'         # 👈 After login, go to profile edit
 LOGOUT_REDIRECT_URL = 'google_login_redirect'
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '453221031989-butenbqptdmu9gcfbl5cfl9eb69gb1vj.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('GOOGLE_CLIENT_ID')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('GOOGLE_SECRET_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = ['mitsgwl.ac.in']
 # SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = True
 SOCIAL_AUTH_LOGIN_ERROR_URL = '/login-error/'
