@@ -16,15 +16,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from accounts.views import google_login_redirect, login_error  # ✅ Import here
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # 🔗 Your app URLs
-    path('accounts/', include('accounts.urls')),
+    # 🔐 Google login and error at root level
+    path('login/', google_login_redirect, name='google_login_redirect'),
+    path('login-error/', login_error, name='login_error'),
 
-    # 🔐 Google login and social auth routes
+    # 🔗 App-specific routes
+    path('accounts/', include('accounts.urls')),
     path('accounts/', include('social_django.urls', namespace='social')),
+    # path('complaints/submit/', include('complaints.urls')), 
+    # path('complaints/', include('complaints.urls')), 
 ]
 # http://localhost:8000/accounts/login/google-oauth2/
 

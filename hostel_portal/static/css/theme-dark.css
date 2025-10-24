@@ -1,0 +1,11 @@
+body {
+  background-color: #1a1a2e;
+  color: #e0e0e0;
+}
+.navbar, .topbar {
+  background: linear-gradient(90deg, #6a11cb, #2575fc);
+}
+.dropdown-menu {
+  background-color: #2a2a40;
+  color: #e0e0e0;
+}

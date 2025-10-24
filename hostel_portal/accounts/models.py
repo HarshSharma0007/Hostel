@@ -47,9 +47,24 @@ class StudentProfile(models.Model):
     pin_code = models.CharField(max_length=10)
     state = models.CharField(max_length=50)
 
+
+    def is_complete(self):
+        required_fields = [
+            self.mobile,
+            self.parent_mobile,
+            self.address,
+            self.city,
+            self.pin_code,
+            self.state,
+        ]
+        return all(required_fields)
+
     def __str__(self):
         return self.user.get_full_name()  # For admin/debug display
 
 class AllowedStudent(models.Model):
-    email = models.EmailField(unique=True)
-    added_on = models.DateTimeField(auto_now_add=True)
+    email = models.EmailField(unique=True, default='test@mitsgwl.ac.in')
+    added_on = models.DateTimeField(auto_now_add=True)  # No default needed
+    enrollment_number = models.CharField(max_length=20, default='0000TEST')
+    full_name = models.CharField(max_length=100, default='TEST USER')
+    branch = models.CharField(max_length=50, default='CSE')

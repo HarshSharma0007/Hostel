@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Error | Hostel Complaint Portal</title>
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <style>
+    body {
+      background-color: #1a1a2e;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .error-card {
+      max-width: 600px;
+      padding: 40px;
+      background: #2a2a40;
+      border-radius: 16px;
+      box-shadow: 0 0 40px rgba(138, 43, 226, 0.3);
+      text-align: center;
+    }
+
+    .error-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #ff6b6b;
+      margin-bottom: 20px;
+    }
+
+    .error-message {
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      color: #ccc;
+    }
+
+    .contact-info {
+      font-size: 0.95rem;
+      color: #b0b0b0;
+    }
+
+    .contact-info a {
+      color: #7f5af0;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .contact-info a:hover {
+      text-decoration: underline;
+      color: #a78bfa;
+    }
+  </style>
+</head>
+<body>
+  <div class="error-card">
+    <div class="error-title">🚫 Login Blocked</div>
+    <p class="error-message">Your email is not authorized to access this portal.</p>
+    <p class="error-message">Please contact the warden or admin to request access.</p>
+    <p class="contact-info">
+      📧 Reach out at <a href="mailto:hostel.admin@mitsgwl.ac.in">hostel.admin@mitsgwl.ac.in</a>
+    </p>
+  </div>
+</body>
+</html>

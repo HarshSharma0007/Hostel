@@ -1,96 +1,152 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Edit Profile | Hostel Complaint Portal</title>
-  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-  <style>
-    body {
-      background-color: #121212;
-      color: #e0e0e0;
-      font-family: 'Segoe UI', sans-serif;
-    }
-    .profile-card {
-      max-width: 700px;
-      margin: 60px auto;
-      padding: 40px;
-      background: #1e1e1e;
-      border-radius: 14px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.3);
-    }
-    .greeting {
-      font-size: 1.2rem;
-      font-weight: 500;
-      margin-bottom: 30px;
-      color: #f5f5f5;
-      text-align: center;
-    }
-    .form-label {
-      font-weight: 500;
-      color: #cfcfcf;
-      margin-bottom: 6px;
-    }
-    input, textarea {
-      background-color: #2a2a2a !important;
-      color: #e0e0e0 !important;
-      border: 1px solid #444 !important;
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-size: 1rem;
-    }
-    input:focus, textarea:focus {
-      border-color: #5c9ded !important;
-      box-shadow: 0 0 0 0.2rem rgba(92,157,237,0.25);
-    }
-    .form-group {
-      margin-bottom: 24px;
-    }
-    .btn-primary {
-      background-color: #5c9ded;
-      border: none;
-      padding: 12px;
-      font-size: 1rem;
-      border-radius: 8px;
-    }
-    .btn-primary:hover {
-      background-color: #4a8bd4;
-    }
-    .text-danger {
-      color: #ff6b6b !important;
-    }
-    .text-muted {
-      color: #b0b0b0 !important;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="profile-card">
-      <h3 class="mb-4 text-center text-light">📝 Edit Your Profile</h3>
 
-      {% if request.user.studentprofile %}
-        <div class="greeting">
-          👋 Hello <strong>{{ request.user.studentprofile.name }}</strong><br>
-          🎓 Enrollment No: <span class="text-muted">{{ request.user.studentprofile.enrollment_number }}</span>
-        </div>
-      {% endif %}
+{% block title %}Edit Profile | Hostel Complaint Portal{% endblock %}
 
-      <form method="post" enctype="multipart/form-data" novalidate>
-        {% csrf_token %}
-        {% for field in form %}
-          <div class="form-group">
-            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}
-              <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
-            {% endif %}
-          </div>
-        {% endfor %}
+{% block content %}
+<style>
+  .profile-card {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 40px;
+    background: #1e1e1e;
+    border-radius: 14px;
+    box-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
+  }
 
-        <button type="submit" class="btn btn-primary w-100">💾 Save Profile</button>
-      </form>
+  .greeting {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 30px;
+    color: #f5f5f5;
+    text-align: center;
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: #cfcfcf;
+    margin-bottom: 6px;
+  }
+
+  input, textarea {
+    background-color: #2a2a2a !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #444 !important;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 1rem;
+  }
+
+  input:focus, textarea:focus {
+    border-color: #5c9ded !important;
+    box-shadow: 0 0 0 0.2rem rgba(92,157,237,0.25);
+  }
+
+  .form-group {
+    margin-bottom: 24px;
+  }
+
+  .btn-primary {
+    background-color: #7f5af0;
+    border: none;
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+
+  .btn-primary:hover {
+    background-color: #6a40e4;
+  }
+
+  .alert-success,
+  .alert-danger {
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 16px 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  }
+
+  .alert-success {
+    background-color: #2e7d32;
+    color: #ffffff;
+  }
+
+  .alert-danger {
+    background-color: #b00020;
+    color: #ffffff;
+  }
+
+  .alert-icon {
+    font-size: 1.4rem;
+  }
+
+  .field-error {
+    background-color: #b00020;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-top: 8px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.2);
+  }
+</style>
+
+<div class="profile-card">
+  <h3 class="mb-4 text-center text-light">📝 Edit Your Profile</h3>
+
+  {% if request.user.studentprofile %}
+    <div class="greeting">
+      👋 Hello <strong>{{ request.user.studentprofile.name }}</strong><br>
+      🎓 Enrollment No: <span class="text-muted">{{ request.user.studentprofile.enrollment_number }}</span>
     </div>
-  </div>
-</body>
-</html>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-success" role="alert">
+          <span class="alert-icon">✅</span>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger" role="alert">
+        <span class="alert-icon">❌</span>
+        <span>{{ form.non_field_errors|striptags }}</span>
+      </div>
+    {% endif %}
+
+    {% for field in form %}
+      <div class="form-group">
+        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <div class="field-error">{{ field.errors|striptags }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary w-100">💾 Save Profile</button>
+  </form>
+
+</div>
+
+<script>
+  setTimeout(() => {
+    document.querySelectorAll('.alert-success, .alert-danger').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transition = 'opacity 0.6s ease';
+    });
+  }, 3000);
+</script>
+{% endblock %}

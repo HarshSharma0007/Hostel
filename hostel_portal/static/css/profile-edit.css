@@ -1,0 +1,93 @@
+.profile-card {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 40px;
+  background: #1e1e1e;
+  border-radius: 14px;
+  box-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
+}
+.greeting {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 30px;
+  color: #f5f5f5;
+  text-align: center;
+}
+.form-label {
+  font-weight: 500;
+  color: #cfcfcf;
+  margin-bottom: 6px;
+}
+input, textarea {
+  background-color: #2a2a2a !important;
+  color: #e0e0e0 !important;
+  border: 1px solid #444 !important;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 1rem;
+}
+input:focus, textarea:focus {
+  border-color: #5c9ded !important;
+  box-shadow: 0 0 0 0.2rem rgba(92,157,237,0.25);
+}
+.form-group {
+  margin-bottom: 24px;
+}
+.btn-primary {
+  background-color: #7f5af0;
+  border: none;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 8px;
+}
+.btn-primary:hover {
+  background-color: #6a40e4;
+}
+.alert-success {
+  background-color: #2e7d32;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+.alert-danger {
+  background-color: #b00020;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+@media (max-width: 576px) {
+  .profile-card {
+    padding: 24px;
+    margin: 20px 12px;
+  }
+}
+.alert-success,
+.alert-danger {
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 16px 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.alert-success {
+  background-color: #2e7d32;
+  color: #ffffff;
+}
+
+.alert-danger {
+  background-color: #b00020;
+  color: #ffffff;
+}
+
+.alert-icon {
+  font-size: 1.4rem;
+}

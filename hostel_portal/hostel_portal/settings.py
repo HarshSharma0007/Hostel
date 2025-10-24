@@ -61,17 +61,20 @@ ROOT_URLCONF = 'hostel_portal.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],  # ✅ Add this],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',         # ✅ Add this
+                'social_django.context_processors.login_redirect',   # ✅ And this
             ],
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'hostel_portal.wsgi.application'
 
@@ -128,6 +131,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [ BASE_DIR / 'static' ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -144,26 +148,51 @@ AUTHENTICATION_BACKENDS = (
 )
 
 LOGIN_URL = 'google_login_redirect'         # 👈 This should match your redirect view name
-LOGIN_REDIRECT_URL = 'profile_edit'         # 👈 After login, go to profile edit
-LOGOUT_REDIRECT_URL = 'google_login_redirect'
+# LOGIN_REDIRECT_URL = 'profile_edit'      # 👈 After login, go to profile edit
+LOGIN_REDIRECT_URL = '/accounts/dashboard/'  # ✅ Safe fallback, pipeline will override
+# LOGOUT_REDIRECT_URL = 'google_login_redirect'
+LOGOUT_REDIRECT_URL = '/accounts/login/'  # or '/accounts/login/'
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 
+SESSION_COOKIE_AGE = 3600  # 1 hour
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True # Optional: Expire session on browser close
+SOCIAL_AUTH_LOGIN_ERROR_URL = '/login-error/'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('GOOGLE_CLIENT_ID')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('GOOGLE_SECRET_KEY')
-SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = ['mitsgwl.ac.in']
+SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = [
+    'mitsgwl.ac.in', # Student domain
+    'mitsgwalior.in', # Faculty domain
+]
 # SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = True
-SOCIAL_AUTH_LOGIN_ERROR_URL = '/login-error/'
+
 
 SOCIAL_AUTH_PIPELINE = [
     'social_core.pipeline.social_auth.social_details',          # Extract basic profile info
-    'social_core.pipeline.social_auth.social_uid',              # Get unique user ID from provider
+    'social_core.pipeline.social_auth.social_uid',             # Get unique user ID from provider
+    'accounts.pipeline.auth_allowed',                  # ✅ Use your custom check here            
     'social_core.pipeline.social_auth.auth_allowed',            # Check if login is allowed
     'social_core.pipeline.social_auth.social_user',             # Try to find existing user
     'social_core.pipeline.user.get_username',                   # Generate username if needed
     'social_core.pipeline.user.create_user',                    # Create new user if not found
-    'accounts.pipeline.extract_name_and_enrollment',            # ✅ Your custom step
+    'accounts.pipeline.assign_role',  # ✅ login happens here
+    # 'accounts.pipeline.clean_session',                    # ✅ flush before profile logic
+    'accounts.pipeline.extract_name_and_enrollment',      # ✅ Your custom step
+    'accounts.pipeline.redirect_after_login',             # ✅ Your custom step
+    
     'social_core.pipeline.social_auth.associate_user',          # Link social account to user
     'social_core.pipeline.social_auth.load_extra_data',         # Load extra data from provider
     'social_core.pipeline.user.user_details',                   # Update user model fields
+    'accounts.middleware.SocialAuthExceptionMiddleware',  # ✅ Your custom middleware
 ]
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_NAME = 'sessionid'
+SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = False
