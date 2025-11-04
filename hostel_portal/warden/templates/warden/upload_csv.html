@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Student CSV</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        form { margin-top: 20px; }
+        button { padding: 8px 16px; background-color: #28a745; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #218838; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h2>Upload Student CSV</h2>
+    <p>Please upload a CSV file with student details (Enrollment Number, Full Name, Email, Branch).</p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload</button>
+    </form>
+
+    <hr>
+    <p><a href="{% url 'warden_dashboard' %}">⬅️ Back to Dashboard</a></p>
+</body>
+</html>

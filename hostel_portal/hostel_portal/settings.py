@@ -164,8 +164,8 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('GOOGLE_CLIENT_ID')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('GOOGLE_SECRET_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '575256574699-8h5kelkch088673opdm32goo15ftve1k.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
 SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = [
     'mitsgwl.ac.in', # Student domain
     'mitsgwalior.in', # Faculty domain
