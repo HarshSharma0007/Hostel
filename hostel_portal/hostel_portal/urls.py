@@ -17,8 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from accounts.views import google_login_redirect, login_error  # ✅ Import here
-
+from accounts.views import landing_page
 urlpatterns = [
+    path('', landing_page, name='landing_page'),  # ✅ Root route
     path('admin/', admin.site.urls),
 
     # 🔐 Google login and error at root level
@@ -30,6 +31,8 @@ urlpatterns = [
     path('accounts/', include('social_django.urls', namespace='social')),
     # path('complaints/submit/', include('complaints.urls')), 
     # path('complaints/', include('complaints.urls')), 
+
+    path('warden/', include('warden.urls')),  # ✅ Warden app URLs
 ]
 # http://localhost:8000/accounts/login/google-oauth2/
 

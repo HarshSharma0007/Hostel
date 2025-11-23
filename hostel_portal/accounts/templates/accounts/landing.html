@@ -1,0 +1,64 @@
+{% block content %}
+<style>
+  body {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .landing-wrapper {
+    width: 100%;
+    padding: 40px 20px;
+  }
+
+  .landing-card {
+    max-width: 600px;
+    margin: auto;
+    padding: 40px;
+    background: #2a2a40;
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(138, 43, 226, 0.3);
+    text-align: center;
+    color: #e0e0e0;
+  }
+
+  .landing-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .landing-subtext {
+    font-size: 1rem;
+    margin-bottom: 30px;
+    color: #cfcfcf;
+  }
+
+  .login-btn {
+    background-color: #7f5af0;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1rem;
+    border-radius: 8px;
+    color: #fff;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+  }
+
+  .login-btn:hover {
+    background-color: #6a40e4;
+  }
+</style>
+
+<div class="landing-wrapper">
+  <div class="landing-card">
+    <div class="landing-title">🔐 Hostel Complaint Portal</div>
+    <p class="landing-subtext">Login with your college or Gmail account to access your dashboard.</p>
+    <a href="{% url 'google_login_redirect' %}" class="login-btn">Login with Google</a>
+  </div>
+</div>
+{% endblock %}

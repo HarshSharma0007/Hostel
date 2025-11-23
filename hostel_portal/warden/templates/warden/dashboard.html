@@ -1,22 +1,65 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Warden Dashboard</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        a { display: block; margin: 10px 0; color: #007bff; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        h2 { color: #333; }
-    </style>
-</head>
-<body>
-    <h2>Welcome, Warden</h2>
-    <p>Use the links below to manage hostel complaints and student data.</p>
 
-    <a href="{% url 'upload_csv' %}">📤 Upload Student CSV</a>
-    <a href="{% url 'complaint_list' %}">📋 View All Complaints</a>
 
-    <hr>
-    <p><a href="{% url 'logout' %}">🔒 Logout</a></p>
-</body>
-</html>
+{% block content %}
+<style>
+  .dashboard-card {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 40px;
+    background: #2a2a40;
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(138, 43, 226, 0.3);
+  }
+
+  .dashboard-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #ffffff;
+  }
+
+  .action-link {
+    display: block;
+    margin: 15px 0;
+    font-size: 1.1rem;
+    color: #e0e0e0;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background-color: #7f5af0;
+    text-align: center;
+    transition: background-color 0.3s ease;
+  }
+
+  .action-link:hover {
+    background-color: #6a40e4;
+  }
+
+    .logout-link {
+    display: block;
+    margin: 30px;
+    font-size: 1.1rem;
+    color: #cce0e0;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background-color: #7f5af0;
+    text-align: center;
+    transition: background-color 0.3s ease;
+  }
+
+  .logout-link:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="dashboard-card">
+  <div class="dashboard-title">🏢 Warden Dashboard</div>
+
+  <a href="{% url 'upload_csv' %}" class="action-link">📤 Upload Student CSV</a>
+  <a href="{% url 'complaint_list' %}" class="action-link">📋 View All Complaints</a>
+
+  <a href="{% url 'logout' %}" class="logout-link">🔒 Logout</a>
+</div>
+{% endblock %}

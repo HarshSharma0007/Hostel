@@ -12,11 +12,17 @@ from django.contrib import messages
 #         form = ProfileEditForm(request.POST, instance=profile)
 #         if form.is_valid():
 #             form.save()
-#             return redirect('student_dashboard')  # ✅ Confirm this route exists
+#             return redirect('student_dashboard')  # Confirm this route exists
 #     else:
 #         form = ProfileEditForm(instance=profile)
 
 #     return render(request, 'accounts/profile_edit.html', {'form': form})
+
+from django.shortcuts import render
+
+def landing_page(request):
+    return render(request, 'accounts/landing.html')
+
 
 @login_required
 def profile_edit(request):
@@ -31,7 +37,8 @@ def profile_edit(request):
     else:
         form = ProfileEditForm(instance=profile)
 
-    return render(request, 'accounts/profile_edit.html', {'form': form})
+    return render(request, 'accounts/profile_edit.html', {'form': form,
+                                                          'profile': profile})
 
 
 

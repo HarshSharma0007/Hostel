@@ -1,4 +1,98 @@
-<!DOCTYPE html>
+
+{% block content %}
+<style>
+  .dashboard-card {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 40px;
+    background: #2a2a40;
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(138, 43, 226, 0.3);
+    color: #e0e0e0;
+  }
+
+  .dashboard-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #ffffff;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #444;
+  }
+
+  th {
+    background-color: #3a3a55;
+    color: #ffffff;
+  }
+
+  tr:nth-child(even) {
+    background-color: #2f2f4a;
+  }
+
+  .back-link {
+    display: block;
+    margin: 30px;
+    font-size: 1.1rem;
+    color: #cce0e0;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background-color: #7f5af0;
+    text-align: center;
+    transition: background-color 0.3s ease;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="dashboard-card">
+  <div class="dashboard-title">📋 All Student Complaints</div>
+
+  <table>
+    <tr>
+      <th>Student</th>
+      <th>Category</th>
+      <th>Status</th>
+      <th>Description</th>
+    </tr>
+    {% for complaint in complaints %}
+    <tr>
+      <td>{{ complaint.student.name }}</td>
+      <td>{{ complaint.category }}</td>
+      <td>{{ complaint.status }}</td>
+      <td>{{ complaint.description }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="4">No complaints found.</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <a href="{% url 'warden_dashboard' %}" class="back-link">⬅️ Back to Dashboard</a>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <title>Student Complaints</title>
@@ -38,4 +132,4 @@
     <hr>
     <p><a href="{% url 'warden_dashboard' %}">⬅️ Back to Dashboard</a></p>
 </body>
-</html>
+</html> -->

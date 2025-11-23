@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -197,7 +198,8 @@
         <a href="{% url 'profile_edit' %}" class="nav-tab {% if request.path == '/accounts/edit/' %}active{% endif %}">🧾 Edit Profile</a>
       </div>
 
-      <div id="profileIcon" class="profile-icon d-flex align-items-center ms-4">
+      <div id="profileIcon" class="profile-icon d-flex align-items-center" style="margin-left: auto; margin-right: 50px;">
+
         {% if profile.photo_url %}
           <img src="{{ profile.photo_url }}" class="icon-circle" alt="Profile">
         {% elif request.user.first_name %}

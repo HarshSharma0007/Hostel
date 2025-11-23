@@ -1,29 +1,32 @@
-from django.shortcuts import render
-
-# Create your views here.
-
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.contrib.auth.models import User
+
+from .forms import CSVUploadForm
+from .models import WardenProfile
+
+# from complaints.models import Complaint  # ✅ Uncomment when Complaint model is ready
+
+import csv
 
 @login_required
 def warden_dashboard(request):
-    # Restrict to college domain
-    if not request.user.email.endswith('@mitsgwalior.in'):
-        messages.error(request, "Access restricted to college domain.")
+    email = request.user.email.lower()
+
+    # Restrict to Gmail for now
+    if not email.endswith('@gmail.com'):
+        messages.error(request, "Access restricted to Gmail accounts for testing.")
         return redirect('logout')
 
-    # Check if user is marked as warden
-    if not hasattr(request.user, 'profile') or not request.user.profile.is_warden:
+    # Check if user has a WardenProfile
+    if not hasattr(request.user, 'wardenprofile'):
         messages.error(request, "You are not authorized as a warden.")
         return redirect('logout')
 
     return render(request, 'warden/dashboard.html')
 
-import csv
-from django.core.mail import send_mail
-from django.contrib.auth.models import User
-from .forms import CSVUploadForm
 
 @login_required
 def upload_csv(request):
@@ -44,7 +47,6 @@ def upload_csv(request):
                     user.first_name = name
                     user.save()
 
-                    # Send email notification
                     send_mail(
                         'Hostel Registration',
                         'You have been added to the hostel system. Please login and complete your profile.',
@@ -60,9 +62,17 @@ def upload_csv(request):
 
     return render(request, 'warden/upload_csv.html', {'form': form})
 
-from accounts.models import Complaint
 
 @login_required
 def complaint_list(request):
-    complaints = Complaint.objects.all().order_by('-created_at')
+    # complaints = Complaint.objects.all().order_by('-created_at')  # ✅ Uncomment when ready
+    complaints = []  # Temporary placeholder
     return render(request, 'warden/complaint_list.html', {'complaints': complaints})
+
+
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
+def warden_logout_view(request):
+    logout(request)
+    return redirect('landing_page')  # 👈 use the name of the landing page route

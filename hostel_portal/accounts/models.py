@@ -46,7 +46,7 @@ class StudentProfile(models.Model):
     city = models.CharField(max_length=50)
     pin_code = models.CharField(max_length=10)
     state = models.CharField(max_length=50)
-
+    first_login = models.BooleanField(default=True)  # ✅ Add this
 
     def is_complete(self):
         required_fields = [
