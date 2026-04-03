@@ -1,11 +1,271 @@
-body {
-  background-color: #1a1a2e;
-  color: #e0e0e0;
+/* ── DARK THEME ── */
+html[data-theme="dark"] {
+  --bg-page:        #1a1a2e;
+  --bg-card:        #2a2a40;
+  --bg-input:       #1e1e2e;
+  --bg-input-focus: #252540;
+  --text-primary:   #e0e0e0;
+  --text-secondary: #a0a0b0;
+  --text-muted:     #b0b3c6;
+  --text-heading:   #ffffff;
+  --border-color:   #3a3a55;
+  --border-focus:   #5c9ded;
+  --topbar-bg:      linear-gradient(90deg, #6a11cb, #2575fc);
+  --topbar-text:    #ffffff;
+  --dropdown-bg:    #2a2a40;
+  --dropdown-text:  #e0e0e0;
+  --dropdown-border:rgba(255,255,255,0.08);
+  --card-shadow:    0 0 40px rgba(138,43,226,0.3);
+  --toggle-bg:      rgba(255,255,255,0.12);
+  --toggle-border:  rgba(255,255,255,0.25);
+  --toggle-hover:   rgba(255,255,255,0.22);
+  --footer-color:   #888;
+  --link-color:     #7f5af0;
+  --nav-tab-color:  #ffffff;
+  --nav-active-bg:  #ffffff;
+  --nav-active-txt: #2575fc;
 }
-.navbar, .topbar {
-  background: linear-gradient(90deg, #6a11cb, #2575fc);
+
+/* ══════════════════════════════════════════
+   GLOBAL OVERRIDES — DARK MODE
+   Override ALL Bootstrap hardcoded colors 
+   so every element has proper contrast.
+   ══════════════════════════════════════════ */
+
+/* ── Body ── */
+html[data-theme="dark"] body {
+  background-color: var(--bg-page) !important;
+  color: var(--text-primary) !important;
 }
-.dropdown-menu {
-  background-color: #2a2a40;
-  color: #e0e0e0;
+
+/* ── Topbar ── */
+html[data-theme="dark"] .topbar {
+  background: var(--topbar-bg) !important;
+}
+
+/* ── ALL Text Overrides (Critical for contrast) ── */
+html[data-theme="dark"] .text-white {
+  color: var(--text-heading) !important;
+}
+
+html[data-theme="dark"] .text-light {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .text-muted {
+  color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] .text-dark {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] h1, html[data-theme="dark"] h2,
+html[data-theme="dark"] h3, html[data-theme="dark"] h4,
+html[data-theme="dark"] h5, html[data-theme="dark"] h6 {
+  color: var(--text-heading) !important;
+}
+
+/* ── Cards & Containers ── */
+html[data-theme="dark"] .card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .dashboard-card,
+html[data-theme="dark"] .profile-card {
+  background: var(--bg-card) !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+html[data-theme="dark"] .container,
+html[data-theme="dark"] .row {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── Tables ── */
+html[data-theme="dark"] .table,
+html[data-theme="dark"] .table-dark,
+html[data-theme="dark"] .table-hover {
+  --bs-table-bg: transparent !important;
+  --bs-table-color: var(--text-primary) !important;
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .table th {
+  background-color: transparent !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+html[data-theme="dark"] .table td {
+  background-color: transparent !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .table-hover > tbody > tr:hover {
+  --bs-table-hover-bg: rgba(127, 90, 240, 0.08) !important;
+}
+
+/* ── Forms & Inputs ── */
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select,
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select {
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] .bg-dark {
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] textarea:focus,
+html[data-theme="dark"] select:focus,
+html[data-theme="dark"] .form-control:focus,
+html[data-theme="dark"] .form-select:focus {
+  background-color: var(--bg-input-focus) !important;
+  border-color: var(--border-focus) !important;
+  box-shadow: 0 0 0 0.2rem rgba(92,157,237,0.25) !important;
+}
+
+html[data-theme="dark"] .form-label,
+html[data-theme="dark"] .info-label {
+  color: var(--text-secondary) !important;
+}
+
+html[data-theme="dark"] .form-control::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* ── Dropdowns ── */
+html[data-theme="dark"] .profile-dropdown,
+html[data-theme="dark"] #profileDropdown {
+  background: var(--dropdown-bg) !important;
+  color: var(--dropdown-text) !important;
+}
+
+html[data-theme="dark"] .profile-dropdown a,
+html[data-theme="dark"] #profileDropdown a {
+  color: var(--dropdown-text) !important;
+  border-bottom-color: var(--dropdown-border) !important;
+}
+
+html[data-theme="dark"] .profile-dropdown a:hover,
+html[data-theme="dark"] #profileDropdown a:hover {
+  background: rgba(255,255,255,0.07) !important;
+}
+
+/* ── Footer ── */
+html[data-theme="dark"] footer {
+  color: var(--footer-color) !important;
+}
+
+/* ── Alerts ── */
+html[data-theme="dark"] .alert {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .alert-success {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  color: #6ee7b7 !important;
+}
+
+html[data-theme="dark"] .alert-warning {
+  background-color: rgba(251, 191, 36, 0.15) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+  color: #fcd34d !important;
+}
+
+html[data-theme="dark"] .alert-danger {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #fca5a5 !important;
+}
+
+/* ── Misc Text ── */
+html[data-theme="dark"] .greeting,
+html[data-theme="dark"] .dashboard-title {
+  color: var(--text-heading) !important;
+}
+
+html[data-theme="dark"] .info-value {
+  color: var(--text-primary) !important;
+}
+
+/* ── Warden Dashboard Specific ── */
+html[data-theme="dark"] .stat-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] .stat-value.text-white {
+  color: var(--text-heading) !important;
+}
+
+html[data-theme="dark"] .warden-header {
+  background: linear-gradient(135deg, #1e1e2e, #2a2a40) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] .action-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .action-card h4 {
+  color: var(--text-heading) !important;
+}
+
+html[data-theme="dark"] .action-card:hover {
+  background: #343452 !important;
+  border-color: #7f5af0 !important;
+}
+
+html[data-theme="dark"] .recent-feed {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* ── Buttons (keep visible in dark mode) ── */
+html[data-theme="dark"] .btn-purple {
+  background-color: #7f5af0 !important;
+  color: #fff !important;
+}
+
+html[data-theme="dark"] .btn-outline-primary {
+  border-color: #7f5af0 !important;
+  color: #7f5af0 !important;
+}
+
+html[data-theme="dark"] .btn-outline-light {
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── Links ── */
+html[data-theme="dark"] a {
+  color: var(--link-color);
+}
+
+html[data-theme="dark"] a.action-card,
+html[data-theme="dark"] a.nav-tab {
+  text-decoration: none;
+}
+
+/* ── Badges (preserve colors) ── */
+html[data-theme="dark"] .badge {
+  color: #fff !important;
 }

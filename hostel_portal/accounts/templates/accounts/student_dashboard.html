@@ -3,104 +3,275 @@
 
 {% block content %}
 <style>
-  .dashboard-card {
-    max-width: 800px;
+  .dashboard-wrapper {
+    max-width: 100%;
     margin: 40px auto;
-    padding: 40px;
-    background: #2a2a40;
-    border-radius: 16px;
-    box-shadow: 0 0 40px rgba(138, 43, 226, 0.3);
+    padding: 0 20px;
   }
 
-  .dashboard-title {
-    font-size: 1.8rem;
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 30px;
-    color: #ffffff;
+  /* ── Top Identity Bar ── */
+  .identity-bar {
+    background: var(--bg-card, #2a2a40);
+    border-radius: 18px;
+    padding: 36px 48px;
+    box-shadow: var(--card-shadow, 0 0 40px rgba(138, 43, 226, 0.3));
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 28px;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
   }
 
-  .info-label {
-    font-weight: 600;
-    color: #cfcfcf;
+  .identity-bar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #6a11cb, #2575fc, #7f5af0);
   }
 
-  .info-value {
-    font-size: 1rem;
-    color: #e0e0e0;
+  .identity-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
   }
 
-  .info-group {
-    margin-bottom: 20px;
-  }
-
-  .btn-purple {
-    background-color: #7f5af0;
-    border: none;
-    padding: 10px 20px;
-    font-size: 1rem;
-    border-radius: 8px;
+  .avatar-circle {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 700;
     color: #fff;
-    transition: background-color 0.3s ease;
+    flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(106, 17, 203, 0.35);
+    overflow: hidden;
   }
 
-  .btn-purple:hover {
-    background-color: #6a40e4;
+  .avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .identity-name {
+    font-size: 1.6rem;
+    font-weight: 800; /* 🚀 Super bold! */
+    color: var(--text-heading, #fff);
+    transition: color 0.3s ease;
+  }
+
+  .identity-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    width: 100%;
+  }
+
+  .identity-box {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .identity-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .identity-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-heading, #fff);
+  }
+
+
+  /* ── Details Card ── */
+  .details-card {
+    background: var(--bg-card, #2a2a40);
+    border-radius: 18px;
+    padding: 32px 36px;
+    box-shadow: var(--card-shadow, 0 0 40px rgba(138, 43, 226, 0.3));
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .details-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-secondary, #a0a0b0);
+    margin-bottom: 22px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.3s ease;
+  }
+
+  .details-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-color, #3a3a55);
+    margin-left: 12px;
+    transition: background 0.3s ease;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .identity-bar {
+      padding: 24px 28px;
+    }
+    .identity-value {
+      font-size: 1.2rem;
+    }
+    .identity-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .identity-box.text-end {
+      text-align: left !important;
+    }
+  }
+
+  @media (max-width: 540px) {
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+    .details-card {
+      padding: 24px 20px;
+    }
+    .identity-bar {
+      padding: 20px;
+    }
+    .identity-value {
+      font-size: 1.1rem;
+    }
+  }
+
+  .info-tile {
+    padding: 16px 20px;
+    background: var(--bg-input, #1e1e2e);
+    border-radius: 14px;
+    border: 1px solid var(--border-color, #3a3a55);
+    transition: background 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .info-tile:hover {
+    transform: translateY(-2px);
+    border-color: rgba(127, 90, 240, 0.4);
+  }
+
+  .info-tile .tile-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary, #a0a0b0);
+    margin-bottom: 5px;
+    transition: color 0.3s ease;
+  }
+
+  .info-tile .tile-value {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--text-primary, #e0e0e0);
+    transition: color 0.3s ease;
+  }
+
+  .info-tile.full-width {
+    grid-column: 1 / -1;
   }
 </style>
 
-<div class="dashboard-card">
-  <div class="dashboard-title">🎓 Student Dashboard</div>
+<div class="dashboard-wrapper">
 
-  <div class="info-group">
-    <div class="info-label">Name</div>
-    <div class="info-value">{{ profile.name }}</div>
+  <!-- ── Expanded Identity Bar ── -->
+  <div class="identity-bar">
+    <div class="identity-grid">
+      <div class="identity-box">
+        <label class="identity-label">Student Name</label>
+        <div class="identity-value">{{ profile.name }}</div>
+      </div>
+      <div class="identity-box text-end">
+        <label class="identity-label">Enrollment Number</label>
+        <div class="identity-value">{{ profile.enrollment_number }}</div>
+      </div>
+      <div class="identity-box">
+        <label class="identity-label">Branch</label>
+        <div class="identity-value">{{ profile.branch|default:"Not Assigned" }}</div>
+      </div>
+      <div class="identity-box text-end">
+        <label class="identity-label">Semester</label>
+        <div class="identity-value">{{ profile.semester|default:"Not Assigned" }}</div>
+      </div>
+      <div class="identity-box">
+        <label class="identity-label">Room Number</label>
+        <div class="identity-value">{{ profile.room_number|default:"N/A" }}</div>
+      </div>
+      <div class="identity-box text-end">
+        <label class="identity-label">Floor Number</label>
+        <div class="identity-value">{{ profile.floor_number|default:"N/A" }}</div>
+      </div>
+    </div>
   </div>
 
-  <div class="info-group">
-    <div class="info-label">Enrollment Number</div>
-    <div class="info-value text-muted">{{ profile.enrollment_number }}</div>
+
+
+  <!-- ── Details Grid ── -->
+  <div class="details-card">
+    <div class="details-title">Details</div>
+
+    <div class="info-grid">
+      <div class="info-tile">
+        <div class="tile-label">Mobile</div>
+        <div class="tile-value">{{ profile.mobile }}</div>
+      </div>
+
+      <div class="info-tile">
+        <div class="tile-label">Parent Mobile</div>
+        <div class="tile-value">{{ profile.parent_mobile }}</div>
+      </div>
+
+      {% if profile.alt_parent_mobile %}
+      <div class="info-tile">
+        <div class="tile-label">Alt Parent Mobile</div>
+        <div class="tile-value">{{ profile.alt_parent_mobile }}</div>
+      </div>
+      {% endif %}
+
+      <div class="info-tile">
+        <div class="tile-label">City</div>
+        <div class="tile-value">{{ profile.city }}</div>
+      </div>
+
+      <div class="info-tile">
+        <div class="tile-label">PIN Code</div>
+        <div class="tile-value">{{ profile.pin_code }}</div>
+      </div>
+
+      <div class="info-tile">
+        <div class="tile-label">State</div>
+        <div class="tile-value">{{ profile.state }}</div>
+      </div>
+
+      <div class="info-tile full-width">
+        <div class="tile-label">Address</div>
+        <div class="tile-value">{{ profile.address }}</div>
+      </div>
+    </div>
   </div>
 
-  <div class="info-group">
-    <div class="info-label">Mobile Number</div>
-    <div class="info-value">{{ profile.mobile }}</div>
-  </div>
-
-  <div class="info-group">
-    <div class="info-label">Parent Mobile</div>
-    <div class="info-value">{{ profile.parent_mobile }}</div>
-  </div>
-
-  {% if profile.alt_parent_mobile %}
-  <div class="info-group">
-    <div class="info-label">Alternate Parent Mobile</div>
-    <div class="info-value">{{ profile.alt_parent_mobile }}</div>
-  </div>
-  {% endif %}
-
-  <div class="info-group">
-    <div class="info-label">Address</div>
-    <div class="info-value">{{ profile.address }}</div>
-  </div>
-
-  <div class="info-group">
-    <div class="info-label">City</div>
-    <div class="info-value">{{ profile.city }}</div>
-  </div>
-
-  <div class="info-group">
-    <div class="info-label">PIN Code</div>
-    <div class="info-value">{{ profile.pin_code }}</div>
-  </div>
-
-  <div class="info-group">
-    <div class="info-label">State</div>
-    <div class="info-value">{{ profile.state }}</div>
-  </div>
-
-  <div class="text-center mt-4">
-    <a href="{% url 'profile_edit' %}" class="btn btn-purple">✏️ Edit Profile</a>
-  </div>
 </div>
 {% endblock %}

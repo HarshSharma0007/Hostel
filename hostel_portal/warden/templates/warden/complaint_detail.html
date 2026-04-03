@@ -1,0 +1,137 @@
+{% extends 'warden/base.html' %}
+{% load static %}
+
+{% block title %}Review Complaint #{{ complaint.id }} | Warden Panel{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <!-- Left Column: Details & Answers -->
+    <div class="col-lg-8">
+        <div class="card p-4 shadow-sm mb-4" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a href="{% url 'complaint_list' %}" class="btn btn-sm btn-outline-secondary">← Back to Queue</a>
+                <div class="text-end">
+                    <span class="badge bg-secondary opacity-75">Ticket #{{ complaint.ticket_number }}</span>
+                    <div class="small text-muted mt-1">{{ complaint.created_at|date:"d M Y, h:i A" }}</div>
+                </div>
+            </div>
+
+            <!-- Student Identity Bar (as requested) -->
+            <div class="p-3 mb-4 rounded-4 d-flex align-items-center justify-content-between" style="background: rgba(127, 90, 240, 0.05); border: 1px solid rgba(127, 90, 240, 0.1);">
+                <div class="d-flex align-items-center gap-3">
+                    {% if complaint.student.photo_url %}
+                        <img src="{{ complaint.student.photo_url }}" class="icon-circle shadow-sm" style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(127, 90, 240, 0.3);">
+                    {% else %}
+                        <div class="icon-circle shadow-sm" style="width: 55px; height: 55px; font-size: 1.25rem; background: var(--purple-gradient, linear-gradient(135deg, #7f5af0, #4f39ad)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+                            {{ complaint.student.name|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h5 class="mb-0 text-white">{{ complaint.student.name }}</h5>
+                        <div class="small text-muted">{{ complaint.student.enrollment_number }}</div>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Location</div>
+                    <div class="text-white">Hostel {{ complaint.student.assigned_hostel }} | Room {{ complaint.student.room_number }}</div>
+                    <div class="small text-muted">Floor {{ complaint.student.floor_number }}</div>
+                </div>
+            </div>
+
+            <h3 class="text-white mb-4" style="font-weight: 800;">{{ complaint.custom_title }}</h3>
+            
+            <div class="mb-4">
+                <div class="small text-muted text-uppercase fw-bold mb-2" style="font-size: 0.7rem;">Category</div>
+                <span class="badge bg-purple px-3 py-2 fs-6">{{ complaint.category.name }}</span>
+            </div>
+
+            <hr style="border-color: var(--border-color); opacity: 0.1;">
+
+            <h5 class="text-primary mt-4 mb-4" style="font-weight: 700;">Issue Details</h5>
+            
+            {% for answer in answers %}
+                <div class="mb-4">
+                    <label class="form-label text-muted fw-bold text-uppercase mb-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">{{ answer.field.label }}</label>
+                    
+                    {% if answer.field.field_type == 'image' %}
+                        {% if answer.image_value %}
+                            <div class="mt-2">
+                                <a href="{{ answer.image_value.url }}" target="_blank">
+                                    <img src="{{ answer.image_value.url }}" alt="Uploaded Image" class="img-fluid rounded-4 shadow-sm" style="max-height: 400px; border: 1px solid var(--border-color);">
+                                </a>
+                            </div>
+                        {% else %}
+                            <p class="text-muted small"><em>No image provided.</em></p>
+                        {% endif %}
+                    {% else %}
+                        <div class="p-3 rounded-3" style="background: var(--bg-input); border: 1px solid var(--border-color);">
+                            <p class="text-light m-0" style="white-space: pre-wrap; line-height: 1.6;">{{ answer.text_value|default:"<em>N/A</em>" }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <div class="text-center py-4 text-muted">
+                    No specific field data available.
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Right Column: Status & Actions -->
+    <div class="col-lg-4">
+        <div class="card p-4 shadow-sm mb-4" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px;">
+            <h5 class="text-white mb-4" style="font-weight: 700;">Status Workflow</h5>
+            
+            <div class="mb-4 text-center">
+                <div class="small text-muted mb-2">Current Status</div>
+                {% if complaint.status == 'Resolved' %}
+                    <span class="badge bg-success px-4 py-2 fs-5 text-white">Resolved</span>
+                {% elif complaint.status == 'InProgress' %}
+                    <span class="badge bg-warning text-dark px-4 py-2 fs-5">In Progress</span>
+                {% else %}
+                    <span class="badge bg-danger px-4 py-2 fs-5 text-white">Pending</span>
+                {% endif %}
+            </div>
+
+            <form method="post" class="d-grid gap-3">
+                {% csrf_token %}
+                
+                {% if complaint.status == 'NotResolved' %}
+                    <input type="hidden" name="status" value="InProgress">
+                    <button type="submit" class="btn btn-warning py-3 fw-bold">
+                        Start Working on This
+                    </button>
+                {% elif complaint.status == 'InProgress' %}
+                    <input type="hidden" name="status" value="Resolved">
+                    <button type="submit" class="btn btn-success py-3 fw-bold">
+                        Mark as Resolved
+                    </button>
+                    <button type="submit" name="status" value="NotResolved" class="btn btn-outline-danger btn-sm mt-2">
+                        Revert to Pending
+                    </button>
+                {% elif complaint.status == 'Resolved' %}
+                    <div class="text-center p-3 rounded-3 bg-success bg-opacity-10 border border-success border-opacity-20">
+                        <p class="text-success small mb-0">This issue has been resolved.</p>
+                    </div>
+                    <button type="submit" name="status" value="InProgress" class="btn btn-outline-secondary btn-sm mt-3">
+                        Re-open Ticket
+                    </button>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Student Contact Info -->
+        <div class="card p-4 shadow-sm" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px;">
+            <h5 class="text-white mb-4" style="font-weight: 700;">Contact Information</h5>
+            <div class="mb-3">
+                <label class="small text-muted mb-1">Mobile Number</label>
+                <div class="text-white fw-bold">{{ complaint.student.mobile }}</div>
+            </div>
+            <div class="mb-3">
+                <label class="small text-muted mb-1">Email Address</label>
+                <div class="text-white small">{{ complaint.student.user.email }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

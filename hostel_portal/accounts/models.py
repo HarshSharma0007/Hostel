@@ -41,12 +41,19 @@ class StudentProfile(models.Model):
                     )
                 ], blank=True)
 
+    # 🎓 Warden-assigned fields (not editable by student)
+    branch = models.CharField(max_length=50, blank=True, default='')
+    semester = models.CharField(max_length=10, blank=True, default='')
+    room_number = models.CharField(max_length=10, blank=True, default='')
+    floor_number = models.CharField(max_length=10, blank=True, default='')
+    assigned_hostel = models.CharField(max_length=50, blank=True, default='Hostel 1')
+
     # 🏠 Address fields
     address = models.TextField()
     city = models.CharField(max_length=50)
     pin_code = models.CharField(max_length=10)
     state = models.CharField(max_length=50)
-    first_login = models.BooleanField(default=True)  # ✅ Add this
+    first_login = models.BooleanField(default=True)
 
     def is_complete(self):
         required_fields = [
@@ -68,3 +75,7 @@ class AllowedStudent(models.Model):
     enrollment_number = models.CharField(max_length=20, default='0000TEST')
     full_name = models.CharField(max_length=100, default='TEST USER')
     branch = models.CharField(max_length=50, default='CSE')
+    semester = models.CharField(max_length=10, blank=True, default='')
+    room_number = models.CharField(max_length=10, blank=True, default='')
+    floor_number = models.CharField(max_length=10, blank=True, default='')
+    assigned_hostel = models.CharField(max_length=50, default='Hostel 1')

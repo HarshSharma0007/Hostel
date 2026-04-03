@@ -8,7 +8,8 @@ class ProfileEditForm(forms.ModelForm):
         model = StudentProfile
         fields = [
             'mobile', 'parent_mobile', 'alt_parent_mobile',
-            'address', 'city', 'pin_code', 'state'
+            'address', 'city', 'pin_code', 'state',
+            'room_number', 'floor_number'
         ]
         widgets = {
             'mobile': forms.TextInput(attrs={'placeholder': '10-digit mobile number'}),
@@ -18,6 +19,8 @@ class ProfileEditForm(forms.ModelForm):
             'city': forms.TextInput(),
             'pin_code': forms.TextInput(),
             'state': forms.TextInput(),
+            'room_number': forms.TextInput(attrs={'placeholder': 'e.g. 101'}),
+            'floor_number': forms.TextInput(attrs={'placeholder': 'e.g. 1st'}),
         }
 
     def _validate_mobile(self, number, field_name):

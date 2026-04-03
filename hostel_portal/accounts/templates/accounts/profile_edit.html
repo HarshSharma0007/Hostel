@@ -6,40 +6,97 @@
 {% block content %}
 <style>
   .profile-card {
-    max-width: 700px;
+    max-width: 100%;
     margin: 40px auto;
-    padding: 40px;
-    background: #1e1e1e;
+    padding: 0; /* Remove padding to handle identity bar correctly */
     border-radius: 14px;
-    box-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
+    background: transparent;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
   }
+
+  .form-container {
+    padding: 40px;
+    background: var(--bg-card, #2a2a40);
+    border-radius: 14px;
+    box-shadow: var(--card-shadow, 0 0 40px rgba(138, 43, 226, 0.3));
+    margin-top: 28px;
+  }
+
+  /* Identity Bar Styles (Shared with Dashboard) */
+  .identity-bar {
+    background: var(--bg-card, #2a2a40);
+    border-radius: 18px;
+    padding: 36px 48px;
+    box-shadow: var(--card-shadow, 0 0 40px rgba(138, 43, 226, 0.3));
+    position: relative;
+    overflow: hidden;
+  }
+
+  .identity-bar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #6a11cb, #2575fc, #7f5af0);
+  }
+
+  .identity-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    width: 100%;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+
+  .form-group.full-width {
+    grid-column: 1 / -1;
+  }
+
+
+  .identity-box {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .identity-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .identity-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-heading, #fff);
+  }
+
 
   .greeting {
     font-size: 1.2rem;
     font-weight: 500;
     margin-bottom: 30px;
-    color: #f5f5f5;
     text-align: center;
   }
 
   .form-label {
     font-weight: 500;
-    color: #cfcfcf;
     margin-bottom: 6px;
   }
 
   input, textarea {
-    background-color: #2a2a2a !important;
-    color: #e0e0e0 !important;
-    border: 1px solid #444 !important;
     border-radius: 8px;
     padding: 12px 14px;
     font-size: 1rem;
-  }
-
-  input:focus, textarea:focus {
-    border-color: #5c9ded !important;
-    box-shadow: 0 0 0 0.2rem rgba(92,157,237,0.25);
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
 
   .form-group {
@@ -58,33 +115,6 @@
     background-color: #6a40e4;
   }
 
-  .alert-success,
-  .alert-danger {
-    font-size: 1.1rem;
-    font-weight: 500;
-    padding: 16px 20px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  }
-
-  .alert-success {
-    background-color: #2e7d32;
-    color: #ffffff;
-  }
-
-  .alert-danger {
-    background-color: #b00020;
-    color: #ffffff;
-  }
-
-  .alert-icon {
-    font-size: 1.4rem;
-  }
-
   .field-error {
     background-color: #b00020;
     color: #fff;
@@ -97,56 +127,72 @@
   }
 </style>
 
-<div class="profile-card">
-  <h3 class="mb-4 text-center text-light">📝 Edit Your Profile</h3>
-
-  {% if request.user.studentprofile %}
-    <div class="greeting">
-      👋 Hello <strong>{{ request.user.studentprofile.name }}</strong><br>
-      🎓 Enrollment No: <span class="text-muted">{{ request.user.studentprofile.enrollment_number }}</span>
+<div class="app-split-container">
+  
+  <!-- ── Left Sidebar: Identity ── -->
+  <aside class="identity-sidebar">
+    <div class="identity-bar">
+      <div style="margin-bottom: 24px;">
+        <label class="identity-label">Student Name</label>
+        <div class="identity-value">{{ request.user.studentprofile.name }}</div>
+      </div>
+      <div style="margin-bottom: 24px;">
+        <label class="identity-label">Enrollment Number</label>
+        <div class="identity-value">{{ request.user.studentprofile.enrollment_number }}</div>
+      </div>
+      <div style="margin-bottom: 24px;">
+        <label class="identity-label">Branch</label>
+        <div class="identity-value">{{ request.user.studentprofile.branch|default:"Not Assigned" }}</div>
+      </div>
+      <div style="margin-bottom: 24px;">
+        <label class="identity-label">Semester</label>
+        <div class="identity-value">{{ request.user.studentprofile.semester|default:"Not Assigned" }}</div>
+      </div>
+      <div style="margin-bottom: 24px;">
+        <label class="identity-label">Room Number</label>
+        <div class="identity-value">{{ request.user.studentprofile.room_number|default:"N/A" }}</div>
+      </div>
+      <div>
+        <label class="identity-label">Floor Number</label>
+        <div class="identity-value">{{ request.user.studentprofile.floor_number|default:"N/A" }}</div>
+      </div>
     </div>
-  {% endif %}
+  </aside>
+
+  <!-- ── Right Main: Form ── -->
+  <main class="main-app-content">
+    <div class="form-container" style="margin-top: 0;">
+      <h3 class="mb-4" style="color: var(--text-heading, #fff); font-weight: 700;">Edit Profile</h3>
+      <p class="text-muted mb-4">Complete your contact and address details. Name, enrollment, and academic info are retrieved from records and cannot be changed here.</p>
+
 
   <form method="post" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
 
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-success" role="alert">
-          <span class="alert-icon">✅</span>
-          <span>{{ message }}</span>
-        </div>
-      {% endfor %}
-    {% endif %}
-
     {% if form.non_field_errors %}
-      <div class="alert alert-danger" role="alert">
-        <span class="alert-icon">❌</span>
+      <div class="alert alert-danger" role="alert" style="background:#ef4444; color:#fff; border:none; padding:12px; border-radius:8px; margin-bottom:20px;">
         <span>{{ form.non_field_errors|striptags }}</span>
       </div>
     {% endif %}
 
-    {% for field in form %}
-      <div class="form-group">
-        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-        {{ field }}
-        {% if field.errors %}
-          <div class="field-error">{{ field.errors|striptags }}</div>
-        {% endif %}
-      </div>
-    {% endfor %}
+    <div class="form-grid">
+      {% for field in form %}
+        <div class="form-group {% if field.name == 'address' %}full-width{% endif %}">
+          <label for="{{ field.id_for_label }}" class="form-label" style="color: var(--text-heading); font-weight: 600;">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <div class="field-error">{{ field.errors|striptags }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
 
-    <button type="submit" class="btn btn-primary w-100">💾 Save Profile</button>
+
+
+    <button type="submit" class="btn btn-primary w-100" style="padding: 14px; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(127, 90, 240, 0.3);">Save Profile Changes</button>
   </form>
-
+</div>
+</main>
 </div>
 
-<script>
-  setTimeout(() => {
-    document.querySelectorAll('.alert-success, .alert-danger').forEach(el => {
-      el.style.opacity = '0';
-      el.style.transition = 'opacity 0.6s ease';
-    });
-  }, 3000);
-</script>
 {% endblock %}

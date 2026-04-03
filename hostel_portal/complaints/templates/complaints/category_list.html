@@ -1,0 +1,37 @@
+{% extends 'warden/base.html' %}
+
+{% block title %}Complaint Categories | Warden Panel{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-white">Form Builder / Complaint Categories</h2>
+    <a href="{% url 'category_create' %}" class="btn btn-purple">+ Create New Category</a>
+</div>
+
+<div class="row">
+    {% for category in categories %}
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100 p-3" style="background: var(--bg-card, #2a2a40); border: 1px solid var(--border-color, #3a3a55); border-radius: 12px; transition: transform 0.2s;">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h4 class="text-white mb-0" style="font-weight: 700;">{{ category.name }}</h4>
+                {% if category.is_active %}
+                <span class="badge bg-success opacity-75">Active</span>
+                {% else %}
+                <span class="badge bg-secondary opacity-50">Inactive</span>
+                {% endif %}
+            </div>
+            <p class="text-muted small">{{ category.description|truncatewords:15 }}</p>
+            <div class="d-flex gap-2 mt-auto">
+                <a href="{% url 'category_builder' category.id %}" class="btn btn-purple btn-sm flex-fill">Edit Form</a>
+                <a href="{% url 'category_edit' category.id %}" class="btn btn-outline-light btn-sm">Edit Info</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center text-muted py-5">
+        <h4>No categories created yet.</h4>
+        <p>Start by creating a category (e.g., "Water" or "Electricity").</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

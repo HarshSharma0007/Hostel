@@ -1,65 +1,258 @@
 
 
+{% extends 'warden/base.html' %}
+{% load static %}
+
+{% block title %}Warden Dashboard | Hostel Portal{% endblock %}
+
 {% block content %}
 <style>
-  .dashboard-card {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 40px;
-    background: #2a2a40;
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  
+  .stat-card {
+    background: var(--bg-card, #2a2a40);
     border-radius: 16px;
-    box-shadow: 0 0 40px rgba(138, 43, 226, 0.3);
+    padding: 24px;
+    text-align: center;
+    border: 1px solid var(--border-color, #3a3a55);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(138, 43, 226, 0.2);
+  }
+  
+  .stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 5px;
+    display: block;
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary, #a0a0b0);
   }
 
-  .dashboard-title {
-    font-size: 1.8rem;
-    font-weight: 600;
-    text-align: center;
+  .warden-header {
+    background: linear-gradient(135deg, #1e1e2e, #2a2a40);
+    padding: 40px;
+    border-radius: 20px;
     margin-bottom: 30px;
-    color: #ffffff;
+    border: 1px solid var(--border-color, #3a3a55);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
-  .action-link {
-    display: block;
-    margin: 15px 0;
-    font-size: 1.1rem;
-    color: #e0e0e0;
+  .action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .action-card {
+    background: var(--bg-card, #2a2a40);
+    padding: 30px;
+    border-radius: 16px;
     text-decoration: none;
-    padding: 10px 15px;
-    border-radius: 8px;
-    background-color: #7f5af0;
+    color: white;
     text-align: center;
-    transition: background-color 0.3s ease;
+    border: 1px solid var(--border-color, #3a3a55);
+    transition: all 0.3s ease;
   }
 
-  .action-link:hover {
-    background-color: #6a40e4;
+  .action-card:hover {
+    background: #343452;
+    border-color: #7f5af0;
+    transform: scale(1.02);
   }
 
-    .logout-link {
-    display: block;
-    margin: 30px;
-    font-size: 1.1rem;
-    color: #cce0e0;
-    text-decoration: none;
-    padding: 10px 15px;
-    border-radius: 8px;
-    background-color: #7f5af0;
-    text-align: center;
-    transition: background-color 0.3s ease;
-  }
-
-  .logout-link:hover {
-    text-decoration: underline;
+  .recent-feed {
+    background: var(--bg-card, #2a2a40);
+    border-radius: 16px;
+    padding: 30px;
+    margin-top: 40px;
+    border: 1px solid var(--border-color, #3a3a55);
   }
 </style>
 
-<div class="dashboard-card">
-  <div class="dashboard-title">🏢 Warden Dashboard</div>
-
-  <a href="{% url 'upload_csv' %}" class="action-link">📤 Upload Student CSV</a>
-  <a href="{% url 'complaint_list' %}" class="action-link">📋 View All Complaints</a>
-
-  <a href="{% url 'logout' %}" class="logout-link">🔒 Logout</a>
+<div class="warden-header">
+  <div>
+    <h1 class="text-white mb-1">Welcome, {{ profile.name }}</h1>
+    <p class="text-primary fs-5 mb-0">📍 Assigned: <span class="fw-bold">{{ profile.hostel_number }}</span></p>
+  </div>
+  <div class="text-end">
+    <span class="badge bg-purple px-3 py-2">Warden Account</span>
+  </div>
 </div>
+
+<div class="stats-grid">
+  <div class="stat-card" style="border-top: 4px solid #7f5af0;">
+    <span class="stat-value text-white">{{ stats.total }}</span>
+    <span class="stat-label">Total Tickets</span>
+  </div>
+  <div class="stat-card" style="border-top: 4px solid #ef4444;">
+    <span class="stat-value text-danger">{{ stats.pending }}</span>
+    <span class="stat-label">Pending</span>
+  </div>
+  <div class="stat-card" style="border-top: 4px solid #fbbf24;">
+    <span class="stat-value text-warning">{{ stats.in_progress }}</span>
+    <span class="stat-label">In Progress</span>
+  </div>
+  <div class="stat-card" style="border-top: 4px solid #10b981;">
+    <span class="stat-value text-success">{{ stats.resolved }}</span>
+    <span class="stat-label">Resolved</span>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="action-grid">
+      <a href="{% url 'upload_csv' %}" class="action-card d-flex align-items-center justify-content-center gap-3">
+        <div class="fs-2">📤</div>
+        <div class="text-start">
+          <h4 class="mb-0">Upload list of students</h4>
+          <p class="text-muted small mb-0">Bulk onboard students into the system</p>
+        </div>
+      </a>
+      <a href="{% url 'email_center' %}" class="action-card d-flex align-items-center justify-content-center gap-3" style="border-color: #10b981;">
+        <div class="fs-2">📧</div>
+        <div class="text-start">
+          <h4 class="mb-0">Email Center</h4>
+          <p class="text-muted small mb-0">Send messages to individuals or all students</p>
+        </div>
+      </a>
+    </div>
+
+    <!-- Unresolved Complaints Table -->
+    <div class="card p-4 rounded-4" style="background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--card-shadow);">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="m-0" style="font-weight: 800; color: var(--text-heading);">Pending & In-Progress Complaints</h3>
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-muted small fw-bold">Entries per page:</span>
+          <select id="entriesPerPage" class="form-select form-select-sm" style="width: 80px; background: var(--bg-input); color: var(--text-primary); border-color: var(--border-color);">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle" style="color: var(--text-primary);">
+          <thead class="text-muted" style="border-bottom: 2px solid var(--border-color);">
+            <tr>
+              <th>Date & Time</th>
+              <th>Student Name</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody id="complaintsBody">
+            {% for c in unresolved_complaints %}
+            <tr class="complaint-row" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+              <td>
+                <div class="fw-bold">{{ c.created_at|date:"d M Y" }}</div>
+                <div class="small opacity-50">{{ c.created_at|time:"h:i A" }}</div>
+              </td>
+              <td>{{ c.student.name }} <br><small class="text-muted">{{ c.student.enrollment_number }}</small></td>
+              <td><span class="badge bg-secondary opacity-75">{{ c.category.name }}</span></td>
+              <td>
+                {% if c.status == 'NotResolved' %}
+                  <span class="badge bg-danger">Pending</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">In Progress</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <a href="{% url 'complaint_detail' c.id %}" class="btn btn-sm btn-purple">View</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-5 text-muted">No unresolved complaints found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div id="paginationControls" class="d-flex justify-content-between align-items-center mt-3">
+        <div class="text-muted small" id="showingText">Showing ... of ...</div>
+        <div class="d-flex gap-2">
+          <button id="prevBtn" class="btn btn-sm btn-outline-secondary px-3">← Previous</button>
+          <button id="nextBtn" class="btn btn-sm btn-outline-secondary px-3">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const tableBody = document.getElementById('complaintsBody');
+  const rows = Array.from(tableBody.getElementsByClassName('complaint-row'));
+  const entriesSelect = document.getElementById('entriesPerPage');
+  const showingText = document.getElementById('showingText');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  
+  let currentPage = 1;
+  let entriesPerPage = parseInt(entriesSelect.value);
+
+  function updateTable() {
+    const totalEntries = rows.length;
+    const totalPages = Math.ceil(totalEntries / entriesPerPage);
+    
+    // Clamp current page
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+
+    const start = (currentPage - 1) * entriesPerPage;
+    const end = start + entriesPerPage;
+
+    rows.forEach((row, index) => {
+      row.style.display = (index >= start && index < end) ? '' : 'none';
+    });
+
+    showingText.textContent = totalEntries > 0 
+      ? `Showing ${start + 1} to ${Math.min(end, totalEntries)} of ${totalEntries} entries`
+      : 'Showing 0 entries';
+
+    prevBtn.disabled = currentPage === 1 || totalEntries === 0;
+    nextBtn.disabled = currentPage === totalPages || totalEntries === 0;
+  }
+
+  entriesSelect.addEventListener('change', () => {
+    entriesPerPage = parseInt(entriesSelect.value);
+    currentPage = 1;
+    updateTable();
+  });
+
+  prevBtn.addEventListener('click', () => {
+    currentPage--;
+    updateTable();
+  });
+
+  nextBtn.addEventListener('click', () => {
+    currentPage++;
+    updateTable();
+  });
+
+  updateTable();
+});
+</script>
 {% endblock %}
+

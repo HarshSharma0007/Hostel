@@ -1,0 +1,83 @@
+{% extends 'warden/base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Edit Field{% else %}Add Field{% endif %} | Warden Panel{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card p-5 shadow-lg" style="background: var(--bg-card, #2a2a40); border: 1px solid var(--border-color, #3a3a55); border-radius: 20px;">
+            <div class="mb-4">
+                <a href="javascript:history.back()" class="text-muted text-decoration-none small">← Back to Builder</a>
+                <h3 class="text-white mt-2 fw-bold">{% if object %}Edit Question Detail{% else %}Add New Question{% endif %}</h3>
+                <p class="text-muted">Define the input type and rules for this part of the form.</p>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="form-label text-white fw-bold mb-2">Question / Label</label>
+                    <input type="text" name="label" class="form-control py-3" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 12px;" placeholder="e.g., Where is the leak located?" value="{{ form.label.value|default:'' }}" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label text-white fw-bold mb-2">Field Type</label>
+                    <select name="field_type" id="fieldType" class="form-select py-3" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 12px;" onchange="toggleOptions()">
+                        <option value="text" {% if form.field_type.value == 'text' %}selected{% endif %}>Short Text</option>
+                        <option value="textarea" {% if form.field_type.value == 'textarea' %}selected{% endif %}>Long Text (Paragraph)</option>
+                        <option value="dropdown" {% if form.field_type.value == 'dropdown' %}selected{% endif %}>Dropdown Selection (Branching)</option>
+                        <option value="number" {% if form.field_type.value == 'number' %}selected{% endif %}>Positive Number (Integer only)</option>
+                        <option value="image" {% if form.field_type.value == 'image' %}selected{% endif %}>Image Upload</option>
+                        <option value="checkbox" {% if form.field_type.value == 'checkbox' %}selected{% endif %}>Checkbox Confirmation</option>
+                    </select>
+                    <div class="form-text text-muted small mt-1">Note: Dropdown fields allow you to create nested follow-up questions.</div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-white fw-bold mb-2">Display Order</label>
+                    <input type="number" name="order" class="form-control py-3" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 12px;" value="{{ form.order.value|default:'0' }}">
+                    <div class="form-text text-muted small">Lower numbers appear first. You can also reorder by dragging in the builder.</div>
+                </div>
+                
+                <div class="p-4 rounded-4 mb-5" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                    <div class="form-check form-switch d-flex align-items-center gap-3">
+                        <input class="form-check-input" type="checkbox" role="switch" name="is_required" id="isRequired" {% if form.is_required.value or not object %}checked{% endif %} style="width: 3.5rem; height: 1.75rem;">
+                        <div>
+                            <label class="form-check-label text-white fw-bold d-block" for="isRequired">Is this field Required?</label>
+                            <small class="text-muted">Uncheck if students can leave this blank.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary px-5 py-2 rounded-pill fw-bold">Discard</a>
+                    <button type="submit" class="btn btn-purple px-5 py-2 rounded-pill fw-bold shadow">Save Question</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleOptions() {
+        const fieldType = document.getElementById('fieldType').value;
+        const optionsDiv = document.getElementById('optionsDiv');
+        if (optionsDiv) {
+            optionsDiv.style.display = (fieldType === 'dropdown') ? 'block' : 'none';
+        }
+    }
+    document.addEventListener('DOMContentLoaded', toggleOptions);
+</script>
+
+<style>
+/* Style Select dropdown options for readability in dark mode */
+.form-select option {
+    background-color: #2a2a40;
+    color: white;
+}
+.form-check-input:checked {
+    background-color: #7f5af0;
+    border-color: #7f5af0;
+}
+</style>
+{% endblock %}

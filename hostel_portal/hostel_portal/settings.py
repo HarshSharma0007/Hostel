@@ -42,8 +42,7 @@ INSTALLED_APPS = [
     'accounts',
     'social_django',
     'warden',
-
-
+    'complaints',
 ]
 
 MIDDLEWARE = [
@@ -151,7 +150,7 @@ AUTHENTICATION_BACKENDS = (
 
 LOGIN_URL = 'google_login_redirect'         # 👈 This should match your redirect view name
 # LOGIN_REDIRECT_URL = 'profile_edit'      # 👈 After login, go to profile edit
-LOGIN_REDIRECT_URL =   '/warden/dashboard/'  # ✅ Safe fallback, pipeline will override
+LOGIN_REDIRECT_URL =   '/accounts/login-redirect/'  # ✅ Safe fallback, pipeline will override
 # LOGOUT_REDIRECT_URL = 'google_login_redirect'
 LOGOUT_REDIRECT_URL = '/accounts/landing/'  # or '/accounts/login/'
 SESSION_COOKIE_SECURE = False
@@ -172,28 +171,27 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = [
     # 'mitsgwalior.in', # Faculty domain
     'gmail.com'  # Warden/faculty domain
 ]
+
+# 🔘 Force Google to show the "Choose an account" screen at every login
+SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
+    'prompt': 'select_account'
+}
 # SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = True
 
 
 SOCIAL_AUTH_PIPELINE = [
     'social_core.pipeline.social_auth.social_details',          # Extract basic profile info
     'social_core.pipeline.social_auth.social_uid',             # Get unique user ID from provider
-    'accounts.pipeline.auth_allowed',                  # ✅ Use your custom check here            
-    # 'social_core.pipeline.social_auth.auth_allowed',            # Check if login is allowed
+    'accounts.pipeline.auth_allowed',                          # ✅ Custom domain/CSV check
     'social_core.pipeline.social_auth.social_user',             # Try to find existing user
     'social_core.pipeline.user.get_username',                   # Generate username if needed
     'social_core.pipeline.user.create_user',                    # Create new user if not found
-    
-    'accounts.pipeline.assign_role',  # ✅ login happens here
-    'accounts.pipeline.extract_name_and_enrollment', 
-    # 'accounts.pipeline.clean_session',                    # ✅ flush before profile logic
-         # ✅ Your custom step
-    'accounts.pipeline.redirect_after_login',             # ✅ Your custom step
-    
+    'accounts.pipeline.assign_role',                            # ✅ Assign StudentProfile or WardenProfile
+    'accounts.pipeline.extract_name_and_enrollment',            # ✅ Parse Google name for students
+    'accounts.pipeline.redirect_after_login',                   # ✅ Route to correct dashboard
     'social_core.pipeline.social_auth.associate_user',          # Link social account to user
     'social_core.pipeline.social_auth.load_extra_data',         # Load extra data from provider
     'social_core.pipeline.user.user_details',                   # Update user model fields
-    # 'accounts.middleware.CustomSocialAuthExceptionMiddleware',  # ✅ Your custom middleware
 ]
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_NAME = 'sessionid'
@@ -203,3 +201,20 @@ CSRF_COOKIE_SECURE = False
 
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# 🌐 Media files (Student uploaded complaint images)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# 📧 Email Configuration (Student Welcome & Notifications)
+# Defaulting to Console for easy terminal testing!
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# --- Gmail SMTP Template (Uncomment for Real Emails) ---
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+# DEFAULT_FROM_EMAIL = f"Hostel Portal <{config('EMAIL_HOST_USER', default='')}>"

@@ -1,21 +1,22 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark" data-bs-theme="dark">
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}Warden Panel | Hostel Portal{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
-  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-  <link id="themeStylesheet" rel="stylesheet" href="{% static 'css/theme-light.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/theme-dark.css' %}">
+  <link rel="stylesheet" href="{% static 'css/theme-light.css' %}">
   <style>
     body {
       margin: 0;
-      background-color: #1a1a2e;
-      color: #e0e0e0;
       font-family: 'Segoe UI', sans-serif;
       padding-top: 70px;
+      background-color: var(--bg-page, #1a1a2e);
+      color: var(--text-primary, #e0e0e0);
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
     .topbar {
       position: fixed;
@@ -48,17 +49,18 @@
       font-size: 1.2rem;
       color: #fff;
     }
-    .nav-tabs {
+    .nav-menu {
       display: flex;
       gap: 16px;
       margin-left: 40px;
+      border: none;
     }
     .nav-tab {
       padding: 8px 16px;
       border-radius: 8px;
       color: #e0e0e0;
       font-weight: 500;
-      text-decoration: none;
+      text-decoration: none !important;
       transition: background-color 0.3s ease;
     }
     .nav-tab:hover {
@@ -82,6 +84,39 @@
       object-fit: cover;
       flex-shrink: 0;
     }
+
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1.5px solid rgba(255, 255, 255, 0.30);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.15rem;
+      transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.28);
+      box-shadow: 0 0 12px rgba(255,255,255,0.25);
+      transform: scale(1.10);
+    }
+
+    .theme-toggle-btn:active {
+      transform: scale(0.93) rotate(20deg);
+    }
+
+    .theme-toggle-btn .theme-icon {
+      display: inline-block;
+      line-height: 1;
+      transition: transform 0.35s ease;
+    }
     .menu-toggle {
       display: none;
       background: none;
@@ -89,14 +124,25 @@
       color: #fff;
       font-size: 1.4rem;
     }
+    .profile-icon {
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      gap: 15px;
+    }
     @media (max-width: 768px) {
-      .nav-tabs,
-      .profile-icon {
+      .nav-menu {
         display: none;
         flex-direction: column;
         margin-top: 12px;
       }
-      .nav-tabs.show,
+      .profile-icon {
+        display: none;
+        flex-direction: row;
+        align-items: center;
+        gap: 15px;
+      }
+      .nav-menu.show,
       .profile-icon.show {
         display: flex;
       }
@@ -143,10 +189,82 @@
     .btn-danger:hover {
       background-color: #e63956;
     }
+    /* ── Modern Toast Notification ── */
+    .toast-container-custom {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    
+    .modern-toast {
+      background-color: #10b981; /* Default Green for Success */
+      color: #ffffff;
+      padding: 16px 24px;
+      border-radius: 8px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
+      transform: translateX(120%);
+      animation: slideInToast 0.3s forwards;
+      pointer-events: auto;
+      min-width: 250px;
+    }
+    
+    .modern-toast.error,
+    .modern-toast.danger {
+      background-color: #ef4444; /* Red for errors */
+    }
+
+    .modern-toast.warning {
+      background-color: #f59e0b; /* Orange for warnings */
+    }
+
+    @keyframes slideInToast {
+      to {
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideOutToast {
+      to {
+        transform: translateX(120%);
+      }
+    }
+
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      background-color: rgba(255,255,255,0.4);
+      width: 100%;
+      animation: shrinkProgress 2s linear forwards;
+    }
+
+    @keyframes shrinkProgress {
+      from { width: 100%; }
+      to { width: 0%; }
+    }
   </style>
 </head>
 
 <body>
+  {% if messages %}
+  <div class="toast-container-custom" id="toastContainer">
+    {% for message in messages %}
+    <div class="modern-toast {% if message.tags %}{{ message.tags }}{% endif %}">
+      {{ message }}
+      <div class="toast-progress"></div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
   <!-- 🔝 Top Navigation Bar -->
   <div class="topbar">
     <div class="topbar-inner">
@@ -156,19 +274,34 @@
         <button class="menu-toggle" onclick="toggleMenu()">☰</button>
       </div>
 
-      <div id="navTabs" class="nav-tabs">
-        <a href="{% url 'warden_dashboard' %}" class="nav-tab {% if request.path == '/warden/dashboard/' %}active{% endif %}">📁 Dashboard</a>
-        <a href="{% url 'warden_logout' %}" class="nav-tab">🚪 Logout</a>
+      <div id="navTabs" class="nav-menu">
+        <a href="{% url 'warden_dashboard' %}" class="nav-tab {% if request.path == '/warden/dashboard/' %}active{% endif %}">Dashboard</a>
+        <a href="{% url 'complaint_list' %}" class="nav-tab {% if '/warden/complaints/' in request.path %}active{% endif %}">Complaints Queue</a>
+        <a href="{% url 'category_list' %}" class="nav-tab {% if '/complaints/categories/' in request.path %}active{% endif %}">Form Builder</a>
       </div>
 
-      <div id="profileIcon" class="profile-icon d-flex align-items-center" style="margin-left: auto; margin-right: 50px;">
+      <div id="profileIcon" class="profile-icon d-flex align-items-center" style="margin-left: auto; margin-right: 50px; position: relative;">
+        <button type="button" id="themeToggleBtn" class="theme-toggle-btn" title="Toggle theme" aria-label="Toggle theme">
+          <span class="theme-icon" id="themeIcon"></span>
+        </button>
+        <button id="profileBtn" aria-haspopup="true" aria-expanded="false" style="background:none;border:none;padding:0;">
         {% if profile.photo_url %}
           <img src="{{ profile.photo_url }}" class="icon-circle" alt="Profile">
         {% elif request.user.first_name %}
           <div class="icon-circle">{{ request.user.first_name|slice:":1"|upper }}</div>
         {% else %}
-          <div class="icon-circle">👤</div>
+          <div class="icon-circle">U</div>
         {% endif %}
+        </button>
+
+        <div id="profileDropdown" class="profile-dropdown" style="display:none; position:absolute; right:0; top:56px; background:var(--bg-card, #fff); color:var(--text-primary, #111); border:1px solid var(--border-color); border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.3); min-width:220px; overflow:hidden; z-index:1500;">
+          <div style="padding:16px; border-bottom:1px solid var(--border-color); background: rgba(0,0,0,0.05);">
+            <div style="font-weight:700; font-size:1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ request.user.get_full_name|default:request.user.username }}</div>
+            <div style="font-size:0.8rem; opacity:0.7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ request.user.email }}</div>
+          </div>
+          <a href="{% url 'warden_dashboard' %}" class="dropdown-item" style="display:block;padding:12px 16px;color:inherit;text-decoration:none;border-bottom:1px solid var(--border-color); transition: background 0.2s;">Dashboard</a>
+          <a href="{% url 'warden_logout' %}" class="dropdown-item" style="display:block;padding:12px 16px;color:#ff4d6d;text-decoration:none;font-weight:600; transition: background 0.2s;">Logout</a>
+        </div>
       </div>
     </div>
   </div>
@@ -193,24 +326,72 @@
       document.getElementById('profileIcon').classList.toggle('show');
     }
 
+    // Profile dropdown toggle for warden
+    const profileBtn = document.getElementById('profileBtn');
+    const profileDropdown = document.getElementById('profileDropdown');
+    if (profileBtn) {
+      profileBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isOpen = profileDropdown.style.display === 'block';
+        profileDropdown.style.display = isOpen ? 'none' : 'block';
+        profileBtn.setAttribute('aria-expanded', String(!isOpen));
+      });
+    }
+    document.addEventListener('click', function () {
+      if (profileDropdown && profileDropdown.style.display === 'block') {
+        profileDropdown.style.display = 'none';
+        if (profileBtn) profileBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && profileDropdown && profileDropdown.style.display === 'block') {
+        profileDropdown.style.display = 'none';
+        if (profileBtn) profileBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
     function setTheme(mode) {
-      const themeLink = document.getElementById('themeStylesheet');
-      if (mode === 'dark') {
-        themeLink.href = "{% static 'css/theme-dark.css' %}";
-        localStorage.setItem('theme', 'dark');
-      } else {
-        themeLink.href = "{% static 'css/theme-light.css' %}";
-        localStorage.setItem('theme', 'light');
+      const html = document.documentElement;
+      const icon = document.getElementById('themeIcon');
+      html.setAttribute('data-theme', mode);
+      html.setAttribute('data-bs-theme', mode);
+      localStorage.setItem('theme', mode);
+      if (icon) {
+        icon.innerHTML = (mode === 'dark') ? '<svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/></svg>' : '<svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/></svg>';
       }
     }
 
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      setTheme('dark');
-    } else {
-      setTheme('light');
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      setTheme(current === 'dark' ? 'light' : 'dark');
     }
+
+    const themeBtnObj = document.getElementById('themeToggleBtn');
+    if (themeBtnObj) {
+      themeBtnObj.addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        toggleTheme();
+      });
+    }
+
+    // Apply saved theme immediately (before paint to avoid flash)
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+
+    // Toast auto-dismiss logic
+    document.addEventListener("DOMContentLoaded", function() {
+      const toasts = document.querySelectorAll('.modern-toast');
+      toasts.forEach(toast => {
+        setTimeout(() => {
+          toast.style.animation = 'slideOutToast 0.3s forwards';
+          setTimeout(() => {
+            toast.remove();
+          }, 300);
+        }, 2000); // Wait exactly 2 seconds
+      });
+    });
   </script>
-  <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-</body>
-</html>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  {% block extra_js %}{% endblock %}
+</body></html>

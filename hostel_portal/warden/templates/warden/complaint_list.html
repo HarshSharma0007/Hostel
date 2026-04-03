@@ -1,135 +1,77 @@
+{% extends 'warden/base.html' %}
+{% load static %}
+
+{% block title %}Global Complaints | Warden Panel{% endblock %}
 
 {% block content %}
-<style>
-  .dashboard-card {
-    max-width: 1000px;
-    margin: 40px auto;
-    padding: 40px;
-    background: #2a2a40;
-    border-radius: 16px;
-    box-shadow: 0 0 40px rgba(138, 43, 226, 0.3);
-    color: #e0e0e0;
-  }
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-white">Global Complaints Queue</h2>
+            
+            <form method="get" class="d-flex gap-2">
+                <select name="status" class="form-select bg-dark text-light border-secondary">
+                    <option value="">All Statuses</option>
+                    <option value="NotResolved" {% if current_status == 'NotResolved' %}selected{% endif %}>Pending</option>
+                    <option value="InProgress" {% if current_status == 'InProgress' %}selected{% endif %}>In Progress</option>
+                    <option value="Resolved" {% if current_status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                </select>
+                <button type="submit" class="btn btn-outline-light">Filter</button>
+            </form>
+        </div>
 
-  .dashboard-title {
-    font-size: 1.8rem;
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 30px;
-    color: #ffffff;
-  }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
 
-  th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #444;
-  }
-
-  th {
-    background-color: #3a3a55;
-    color: #ffffff;
-  }
-
-  tr:nth-child(even) {
-    background-color: #2f2f4a;
-  }
-
-  .back-link {
-    display: block;
-    margin: 30px;
-    font-size: 1.1rem;
-    color: #cce0e0;
-    text-decoration: none;
-    padding: 10px 15px;
-    border-radius: 8px;
-    background-color: #7f5af0;
-    text-align: center;
-    transition: background-color 0.3s ease;
-  }
-
-  .back-link:hover {
-    text-decoration: underline;
-  }
-</style>
-
-<div class="dashboard-card">
-  <div class="dashboard-title">📋 All Student Complaints</div>
-
-  <table>
-    <tr>
-      <th>Student</th>
-      <th>Category</th>
-      <th>Status</th>
-      <th>Description</th>
-    </tr>
-    {% for complaint in complaints %}
-    <tr>
-      <td>{{ complaint.student.name }}</td>
-      <td>{{ complaint.category }}</td>
-      <td>{{ complaint.status }}</td>
-      <td>{{ complaint.description }}</td>
-    </tr>
-    {% empty %}
-    <tr>
-      <td colspan="4">No complaints found.</td>
-    </tr>
-    {% endfor %}
-  </table>
-
-  <a href="{% url 'warden_dashboard' %}" class="back-link">⬅️ Back to Dashboard</a>
+        <div class="card p-0" style="background: var(--bg-card, #2a2a40); border: 1px solid var(--border-color, #3a3a55); border-radius: 12px; overflow: hidden;">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0" style="background: transparent;">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-3" style="background: transparent; border-bottom: 2px solid var(--border-color, #3a3a55); color: var(--text-secondary);">Ticket ID</th>
+                            <th class="px-4 py-3" style="background: transparent; border-bottom: 2px solid var(--border-color, #3a3a55); color: var(--text-secondary);">Date & Time</th>
+                            <th class="px-4 py-3" style="background: transparent; border-bottom: 2px solid var(--border-color, #3a3a55); color: var(--text-secondary);">Student</th>
+                            <th class="px-4 py-3" style="background: transparent; border-bottom: 2px solid var(--border-color, #3a3a55); color: var(--text-secondary);">Category</th>
+                            <th class="px-4 py-3" style="background: transparent; border-bottom: 2px solid var(--border-color, #3a3a55); color: var(--text-secondary);">Status</th>
+                            <th class="px-4 py-3 text-end" style="background: transparent; border-bottom: 2px solid var(--border-color, #3a3a55); color: var(--text-secondary);">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for complaint in complaints %}
+                        <tr>
+                            <td class="px-4 py-3 text-muted align-middle fw-bold">{{ complaint.ticket_number }}</td>
+                            <td class="px-4 py-3 text-muted align-middle">
+                                <div>{{ complaint.created_at|date:"d M Y" }}</div>
+                                <div class="small opacity-50">{{ complaint.created_at|time:"h:i A" }}</div>
+                            </td>
+                            <td class="px-4 py-3 text-light align-middle fw-bold">
+                                {{ complaint.student.name }}<br>
+                                <small class="text-muted">{{ complaint.student.enrollment_number }}</small>
+                            </td>
+                            <td class="px-4 py-3 text-muted align-middle">{{ complaint.category.name }}</td>
+                            <td class="px-4 py-3 align-middle">
+                                {% if complaint.status == 'Resolved' %}
+                                    <span class="badge bg-success">Resolved</span>
+                                {% elif complaint.status == 'InProgress' %}
+                                    <span class="badge bg-warning text-dark">In Progress</span>
+                                {% elif complaint.status == 'NotResolved' %}
+                                    <span class="badge bg-danger">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 align-middle text-end">
+                                <a href="{% url 'complaint_detail' complaint.id %}" class="btn btn-sm btn-purple">Review</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                No complaints found in the queue.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
-
-
-
-
-
-
-
-<!-- <!DOCTYPE html>
-<html>
-<head>
-    <title>Student Complaints</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-        th { background-color: #f8f8f8; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
-        a { color: #007bff; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-    </style>
-</head>
-<body>
-    <h2>All Student Complaints</h2>
-    <table>
-        <tr>
-            <th>Student</th>
-            <th>Category</th>
-            <th>Status</th>
-            <th>Description</th>
-        </tr>
-        {% for complaint in complaints %}
-        <tr>
-            <td>{{ complaint.student.name }}</td>
-            <td>{{ complaint.category }}</td>
-            <td>{{ complaint.status }}</td>
-            <td>{{ complaint.description }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4">No complaints found.</td>
-        </tr>
-        {% endfor %}
-    </table>
-
-    <hr>
-    <p><a href="{% url 'warden_dashboard' %}">⬅️ Back to Dashboard</a></p>
-</body>
-</html> -->

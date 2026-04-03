@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Submit Complaint | Hostel Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4 pb-5">
+  <div class="col-12 col-lg-8">
+    <div class="card p-4 shadow-lg mx-auto" style="background: var(--bg-card, #2a2a40); border: 1px solid var(--border-color, #3a3a55); border-radius: 20px; transition: transform 0.3s;">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{% url 'student_complaint_list' %}" class="text-muted text-decoration-none hover-link" style="font-size: 1.1rem;">← Back</a>
+        <h3 class="dashboard-title m-0" style="font-weight: 800; letter-spacing: -0.5px;">New Complaint</h3>
+        <div style="width: 24px;"></div>
+      </div>
+
+      <!-- Student Info Header Block - High Contrast -->
+      <div class="mb-4 p-4 rounded-4 shadow-sm" style="background: rgba(127, 90, 240, 0.08); border: 1px solid rgba(127, 90, 240, 0.25);">
+        <div class="row g-4">
+          <div class="col-6 col-md-4">
+            <div class="text-muted small text-uppercase fw-bold opacity-50 mb-1" style="font-size: 0.65rem;">Student</div>
+            <div class="fw-bold text-white fs-6">{{ profile.name }}</div>
+          </div>
+          <div class="col-6 col-md-4">
+            <div class="text-muted small text-uppercase fw-bold opacity-50 mb-1" style="font-size: 0.65rem;">Enrollment</div>
+            <div class="fw-bold text-white fs-6">{{ profile.enrollment_number }}</div>
+          </div>
+          <div class="col-6 col-md-4">
+            <div class="text-muted small text-uppercase fw-bold opacity-50 mb-1" style="font-size: 0.65rem;">Hostel</div>
+            <div class="fw-bold text-white fs-6">{{ profile.assigned_hostel|default:"Hostel 1" }}</div>
+          </div>
+          <div class="col-6 col-md-4">
+            <div class="text-muted small text-uppercase fw-bold opacity-50 mb-1" style="font-size: 0.65rem;">Room / Floor</div>
+            <div class="fw-bold text-white fs-6">{{ profile.room_number|default:"N/A" }} / {{ profile.floor_number|default:"N/A" }}</div>
+          </div>
+        </div>
+      </div>
+            
+            <form id="complaintForm" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Step 1: Form Entry -->
+                <div id="formSection">
+                  <div class="mb-5">
+                      <label class="form-label fw-bold fs-5 mb-3" style="color: var(--text-heading, #ffffff);">Problem Category <span class="text-danger">*</span></label>
+                      <select name="category" id="categorySelect" class="form-select custom-select py-3" style="background: var(--bg-input, #1e1e2e); color: var(--text-primary); border: 2px solid var(--border-color); border-radius: 12px; font-weight: 500;" required>
+                          <option value="" selected disabled>Select what's wrong...</option>
+                          {% for cat in categories %}
+                              <option value="{{ cat.id }}">{{ cat.name }}</option>
+                          {% endfor %}
+                      </select>
+                  </div>
+
+                  <!-- Dynamic Form Container -->
+                  <div id="dynamicFormContainer" class="mb-5" style="display: none;">
+                      <div id="loadingSpinner" class="text-center py-5" style="display: none;">
+                          <div class="spinner-border text-primary" role="status"></div>
+                      </div>
+                      <div id="dynamicFields" class="d-flex flex-column gap-3"></div>
+                  </div>
+
+                  <button type="button" id="previewBtn" class="btn btn-purple btn-lg w-100 py-3 shadow" style="background: linear-gradient(135deg, #7f5af0, #4f39ad); color:white; border-radius: 15px; font-weight: 800; border: none; transition: all 0.3s;" disabled>
+                    View Summary & Review
+                  </button>
+                </div>
+
+                <!-- Step 2: High-Fidelity Preview -->
+                <div id="previewSection" style="display: none;">
+                  <div class="text-center mb-5">
+                    <div class="badge bg-purple-subtle text-purple px-3 py-2 mb-2" style="font-weight: 700; border-radius: 20px; font-size: 0.8rem;">STEP 2: FINAL REVIEW</div>
+                    <h3 class="text-white fw-bold">Ticket Summary</h3>
+                    <p class="text-muted">Please confirm all details before submission.</p>
+                  </div>
+
+                  <div id="previewCard" class="rounded-4 mb-5 shadow-lg overflow-hidden" style="background: #1e1e2e; border: 1px solid rgba(255,255,255,0.05);">
+                    <!-- Header -->
+                    <div class="p-4 d-flex align-items-center gap-3" style="background: rgba(127, 90, 240, 0.1); border-bottom: 1px solid rgba(127, 90, 240, 0.2);">
+                        <div class="p-2 rounded-3" style="background: #7f5af0; color: white;">
+                             <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M7 1h2v14H7V1z"/><path d="M1 4h14v2H1V4zm0 6h14v2H1v-2z"/></svg>
+                        </div>
+                        <div>
+                            <div class="text-muted small fw-bold text-uppercase opacity-50" style="font-size: 0.7rem;">Category Selected</div>
+                            <h4 id="summaryCategory" class="m-0 text-white fw-bold">...</h4>
+                        </div>
+                    </div>
+
+                    <!-- Details Body -->
+                    <div id="previewBody" class="p-4 d-flex flex-column gap-4">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Footer Warning -->
+                    <div class="p-3 bg-dark bg-opacity-25 border-top border-secondary border-opacity-10 text-center">
+                        <small class="text-muted">Fields marked with <span class="text-danger">*</span> were required for this branch.</small>
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-column flex-md-row gap-3">
+                    <button type="button" id="editBtn" class="btn btn-outline-secondary w-100 w-md-50 py-3" style="border-radius: 12px; font-weight: 700; border-width: 2px;">Back to Edit</button>
+                    <button type="submit" id="submitBtn" class="btn btn-success w-100 w-md-50 py-3" style="background: linear-gradient(135deg, #2ecc71, #27ae60); border: none; border-radius: 12px; font-weight: 800; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);">Submit Complaint Now</button>
+                  </div>
+                </div>
+            </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const categorySelect = document.getElementById('categorySelect');
+    const dynamicContainer = document.getElementById('dynamicFormContainer');
+    const dynamicFields = document.getElementById('dynamicFields');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const previewBtn = document.getElementById('previewBtn');
+    const formSection = document.getElementById('formSection');
+    const previewSection = document.getElementById('previewSection');
+    const previewBody = document.getElementById('previewBody');
+    const summaryCategory = document.getElementById('summaryCategory');
+    const editBtn = document.getElementById('editBtn');
+    const complaintForm = document.getElementById('complaintForm');
+
+    let allFieldsData = [];
+
+    categorySelect.addEventListener('change', async function() {
+        const catId = this.value;
+        if (!catId) return;
+
+        dynamicContainer.style.display = 'block';
+        dynamicFields.innerHTML = '';
+        loadingSpinner.style.display = 'block';
+        previewBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/complaints/api/categories/${catId}/fields/`);
+            const data = await response.json();
+            allFieldsData = data.fields;
+            
+            loadingSpinner.style.display = 'none';
+            renderLevel(null, dynamicFields);
+            previewBtn.disabled = false;
+
+            if (allFieldsData.length === 0) {
+                dynamicFields.innerHTML = '<div class="text-center p-4 border border-dashed rounded-3 opacity-50">This category has no extra questions.</div>';
+            }
+        } catch (error) {
+            console.error(error);
+            loadingSpinner.style.display = 'none';
+            dynamicFields.innerHTML = '<div class="alert alert-danger">Error loading fields.</div>';
+        }
+    });
+
+    function renderLevel(parentId, container) {
+        const fields = allFieldsData.filter(f => f.parent_option === parentId);
+        
+        fields.forEach(field => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'field-card p-4 rounded-4 animate-in';
+            wrapper.dataset.fieldId = field.id;
+            wrapper.style.background = 'rgba(255,255,255,0.02)';
+            wrapper.style.border = '1px solid rgba(255,255,255,0.05)';
+            
+            const reqMarker = field.is_required ? '<span class="text-danger ms-1">*</span>' : '';
+            const reqAttr = field.is_required ? 'required' : '';
+            const inputName = `custom_field_${field.id}`;
+            const inputClass = 'form-control bg-dark border-secondary border-opacity-25 text-white py-3 px-4 rounded-3';
+
+            let inputHtml = '';
+            if (field.field_type === 'dropdown') {
+                inputHtml = `
+                    <select name="${inputName}" class="form-select branch-selector ${inputClass}" ${reqAttr} data-id="${field.id}">
+                        <option value="" disabled selected>Please select...</option>
+                        ${field.options.map(opt => `<option value="${opt.id}">${opt.text}</option>`).join('')}
+                    </select>
+                    <div class="branch-well mt-3" id="branch_${field.id}" style="border-left: 2px dashed #7f5af0; margin-left: 10px; padding-left: 25px;"></div>
+                `;
+            } else if (field.field_type === 'text') {
+                inputHtml = `<input type="text" name="${inputName}" class="${inputClass}" placeholder="Enter answer..." ${reqAttr}>`;
+            } else if (field.field_type === 'textarea') {
+                inputHtml = `<textarea name="${inputName}" class="${inputClass}" rows="3" placeholder="Describe in detail..." ${reqAttr}></textarea>`;
+            } else if (field.field_type === 'number') {
+                inputHtml = `<input type="number" name="${inputName}" class="${inputClass}" min="1" step="1" ${reqAttr}>`;
+            } else if (field.field_type === 'image') {
+                inputHtml = `<input type="file" name="${inputName}" class="${inputClass}" accept="image/*" ${reqAttr}>`;
+            } else if (field.field_type === 'checkbox') {
+                inputHtml = `
+                    <div class="form-check form-switch pt-2">
+                        <input class="form-check-input" type="checkbox" name="${inputName}" id="s_${field.id}" ${reqAttr} style="width: 3em; height: 1.5em; background-color: rgba(255,255,255,0.1);">
+                        <label class="form-check-label text-light fw-bold ms-3" for="s_${field.id}">Confirm: ${field.label}</label>
+                    </div>
+                `;
+            }
+
+            wrapper.innerHTML = `
+                <div class="mb-3 d-flex align-items-center gap-2">
+                    <div class="text-muted small fw-bold text-uppercase opacity-50" style="letter-spacing: 1px; font-size: 0.7rem;">Field</div>
+                    <div class="ms-auto"><span class="badge rounded-pill bg-dark border border-secondary text-muted" style="font-size: 0.6rem;">${field.field_type.toUpperCase()}</span></div>
+                </div>
+                <h5 class="text-white mb-3 fw-bold">${field.label}${reqMarker}</h5>
+                ${inputHtml}
+            `;
+            container.appendChild(wrapper);
+
+            if (field.field_type === 'dropdown') {
+                const select = wrapper.querySelector('.branch-selector');
+                select.addEventListener('change', function() {
+                    const optionId = parseInt(this.value);
+                    const well = document.getElementById(`branch_${field.id}`);
+                    well.innerHTML = '';
+                    renderLevel(optionId, well);
+                });
+            }
+        });
+    }
+
+    previewBtn.addEventListener('click', function() {
+        if (!complaintForm.checkValidity()) {
+            complaintForm.reportValidity();
+            return;
+        }
+
+        summaryCategory.textContent = categorySelect.options[categorySelect.selectedIndex].text;
+        previewBody.innerHTML = '';
+
+        // Collect visible form data
+        const currentFieldWrappers = dynamicFields.querySelectorAll('.field-card');
+        currentFieldWrappers.forEach(card => {
+            const fieldId = parseInt(card.dataset.fieldId);
+            const def = allFieldsData.find(f => f.id === fieldId);
+            const input = card.querySelector(`[name="custom_field_${fieldId}"]`);
+            if (!input) return;
+
+            let displayVal = '';
+            let icon = '📖';
+
+            if (def.field_type === 'dropdown') {
+                displayVal = input.options[input.selectedIndex].text;
+                icon = '📂';
+            } else if (def.field_type === 'checkbox') {
+                displayVal = input.checked ? 'Yes / Confirmed' : 'No / Denied';
+                icon = '✅';
+            } else if (def.field_type === 'image') {
+                displayVal = input.files[0] ? input.files[0].name : 'No image uploaded';
+                icon = '🖼️';
+            } else if (input.value) {
+                displayVal = input.value;
+                icon = (def.field_type === 'number') ? '🔢' : '📝';
+            }
+
+            if (displayVal) {
+                const item = document.createElement('div');
+                item.className = 'd-flex align-items-start gap-3';
+                item.innerHTML = `
+                    <div class="fs-4">${icon}</div>
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase ls-1 opacity-50" style="font-size: 0.7rem;">${def.label}</div>
+                        <div class="text-white fw-bold fs-6">${displayVal}</div>
+                    </div>
+                `;
+                previewBody.appendChild(item);
+            }
+        });
+
+        if (previewBody.innerHTML === '') {
+            previewBody.innerHTML = '<div class="text-center text-muted py-3">No specific details provided. Just the category summary will be sent.</div>';
+        }
+
+        formSection.style.display = 'none';
+        previewSection.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    editBtn.addEventListener('click', function() {
+        previewSection.style.display = 'none';
+        formSection.style.display = 'block';
+    });
+
+    complaintForm.addEventListener('submit', function(e) {
+        if (previewSection.style.display === 'none') {
+            e.preventDefault();
+            previewBtn.click();
+        }
+    });
+});
+</script>
+
+<style>
+.custom-select { transition: border-color 0.3s, box-shadow 0.3s; }
+.custom-select:focus { border-color: #7f5af0 !important; box-shadow: 0 0 10px rgba(127, 90, 240, 0.2); outline: none; }
+.btn-purple:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(127, 90, 240, 0.4); opacity: 0.9; }
+.animate-in { animation: slideUp 0.4s ease-out; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.ls-1 { letter-spacing: 1px; }
+.hover-link:hover { color: #7f5af0 !important; }
+</style>
+{% endblock %}

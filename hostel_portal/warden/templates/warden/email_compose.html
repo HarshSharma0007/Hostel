@@ -1,0 +1,47 @@
+{% extends 'warden/base.html' %}
+{% load static %}
+
+{% block title %}Email Center | Warden Panel{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8">
+        <div class="card p-4 shadow-lg" style="background: var(--bg-card, #2a2a40); border: 1px solid var(--border-color, #3a3a55); border-radius: 12px;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a href="{% url 'warden_dashboard' %}" class="text-muted text-decoration-none">← Back</a>
+                <h3 class="m-0" style="color: var(--text-heading, #fff);">📧 Outreach Center</h3>
+                <div style="width: 24px;"></div>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold" style="color: var(--text-primary, #e0e0e0);">Select Recipient(s)</label>
+                    <select name="target" class="form-select" style="background-color: var(--bg-input, #1e1e2e); color: var(--text-primary, #e0e0e0); border-color: var(--border-color, #3a3a55);">
+                        <option value="all">📢 All Registered Students</option>
+                        <optgroup label="Individual Students">
+                            {% for student in students %}
+                                <option value="{{ student.email }}">{{ student.full_name }} ({{ student.email }})</option>
+                            {% endfor %}
+                        </optgroup>
+                    </select>
+                    <small class="text-muted">Choose 'All Students' to send a bulk announcement.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold" style="color: var(--text-primary, #e0e0e0);">Subject</label>
+                    <input type="text" name="subject" class="form-control" style="background-color: var(--bg-input, #1e1e2e); color: var(--text-primary, #e0e0e0); border-color: var(--border-color, #3a3a55);" placeholder="e.g. Important Update regarding Hostel Timing" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold" style="color: var(--text-primary, #e0e0e0);">Message Body</label>
+                    <textarea name="message_body" class="form-control" rows="10" style="background-color: var(--bg-input, #1e1e2e); color: var(--text-primary, #e0e0e0); border-color: var(--border-color, #3a3a55);" placeholder="Type your message here..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn w-100 py-3 fw-bold" style="background: #10b981; color: #fff; border: none; border-radius: 8px;">🚀 Send Message Now</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,11 +1,293 @@
-body {
-  background-color: #f8f9fa;
-  color: #212529;
+/* ── LIGHT THEME ── */
+html[data-theme="light"] {
+  --bg-page:        #f0f2f8;
+  --bg-card:        #ffffff;
+  --bg-input:       #f8f9fc;
+  --bg-input-focus: #ffffff;
+  --text-primary:   #1a1a2e;
+  --text-secondary: #444466;
+  --text-muted:     #6c757d;
+  --text-heading:   #1a1a2e;
+  --border-color:   #d0d4e8;
+  --border-focus:   #6a11cb;
+  --topbar-bg:      linear-gradient(90deg, #6a11cb, #2575fc); /* Unified with dark mode */
+  --topbar-text:    #ffffff;
+  --dropdown-bg:    #ffffff;
+  --dropdown-text:  #1a1a2e;
+  --dropdown-border:rgba(0,0,0,0.06);
+  --card-shadow:    0 4px 24px rgba(106,17,203,0.10);
+  --toggle-bg:      rgba(255,255,255,0.20);
+  --toggle-border:  rgba(255,255,255,0.40);
+  --toggle-hover:   rgba(255,255,255,0.35);
+  --footer-color:   #6c757d;
+  --link-color:     #6a11cb;
+  --nav-tab-color:  #444466;
+  --nav-active-bg:  #f0f2f8;
+  --nav-active-txt: #6a11cb;
 }
-.navbar, .topbar {
-  background: linear-gradient(90deg, #e0e0e0, #ffffff);
+
+/* ══════════════════════════════════════════
+   GLOBAL OVERRIDES — LIGHT MODE
+   Override ALL Bootstrap hardcoded colors 
+   so every element has proper contrast.
+   ══════════════════════════════════════════ */
+
+/* ── Body ── */
+html[data-theme="light"] body {
+  background-color: var(--bg-page) !important;
+  color: var(--text-primary) !important;
 }
-.dropdown-menu {
-  background-color: #ffffff;
-  color: #212529;
+
+/* ── Topbar (No longer override background in light mode) ── */
+html[data-theme="light"] .topbar {
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* ── ALL Text Overrides (Critical for contrast) ── */
+html[data-theme="light"] .text-white,
+html[data-theme="light"] .text-light {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="light"] .text-muted {
+  color: var(--text-muted) !important;
+}
+
+html[data-theme="light"] h1, html[data-theme="light"] h2,
+html[data-theme="light"] h3, html[data-theme="light"] h4,
+html[data-theme="light"] h5, html[data-theme="light"] h6 {
+  color: var(--text-heading) !important;
+}
+
+html[data-theme="light"] p,
+html[data-theme="light"] span,
+html[data-theme="light"] label,
+html[data-theme="light"] td,
+html[data-theme="light"] th,
+html[data-theme="light"] li,
+html[data-theme="light"] div {
+  color: inherit;
+}
+
+/* Preserve badge text colors */
+html[data-theme="light"] .badge {
+  color: #fff !important;
+}
+
+/* ── Cards & Containers ── */
+html[data-theme="light"] .card,
+html[data-theme="light"] .dashboard-card,
+html[data-theme="light"] .profile-card {
+  background: var(--bg-card) !important;
+  box-shadow: var(--card-shadow) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="light"] .container,
+html[data-theme="light"] .row {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── Tables ── */
+html[data-theme="light"] .table,
+html[data-theme="light"] .table-dark,
+html[data-theme="light"] .table-hover {
+  --bs-table-bg: transparent !important;
+  --bs-table-color: var(--text-primary) !important;
+  --bs-table-striped-bg: rgba(106,17,203,0.03) !important;
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="light"] .table th {
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+html[data-theme="light"] .table td {
+  background-color: transparent !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="light"] .table-hover > tbody > tr:hover {
+  --bs-table-hover-bg: rgba(106,17,203,0.05) !important;
+}
+
+/* ── Forms & Inputs ── */
+html[data-theme="light"] input,
+html[data-theme="light"] textarea,
+html[data-theme="light"] select,
+html[data-theme="light"] .form-control,
+html[data-theme="light"] .form-select {
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="light"] .bg-dark {
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="light"] input:focus,
+html[data-theme="light"] textarea:focus,
+html[data-theme="light"] select:focus,
+html[data-theme="light"] .form-control:focus,
+html[data-theme="light"] .form-select:focus {
+  background-color: var(--bg-input-focus) !important;
+  border-color: var(--border-focus) !important;
+  box-shadow: 0 0 0 0.2rem rgba(106,17,203,0.15) !important;
+}
+
+html[data-theme="light"] .form-label,
+html[data-theme="light"] .info-label {
+  color: var(--text-secondary) !important;
+}
+
+html[data-theme="light"] .form-control::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* ── Dropdowns ── */
+html[data-theme="light"] .profile-dropdown,
+html[data-theme="light"] #profileDropdown {
+  background: var(--dropdown-bg) !important;
+  color: var(--dropdown-text) !important;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.10) !important;
+}
+
+html[data-theme="light"] .profile-dropdown a,
+html[data-theme="light"] #profileDropdown a {
+  color: var(--dropdown-text) !important;
+  border-bottom-color: var(--dropdown-border) !important;
+}
+
+html[data-theme="light"] .profile-dropdown a:hover,
+html[data-theme="light"] #profileDropdown a:hover {
+  background: rgba(106,17,203,0.06) !important;
+}
+
+/* ── Footer ── */
+html[data-theme="light"] footer {
+  color: var(--footer-color) !important;
+}
+
+/* ── Alerts ── */
+html[data-theme="light"] .alert {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="light"] .alert-success {
+  background-color: #d1e7dd !important;
+  border-color: #badbcc !important;
+  color: #0f5132 !important;
+}
+
+html[data-theme="light"] .alert-warning {
+  background-color: #fff3cd !important;
+  border-color: #ffecb5 !important;
+  color: #664d03 !important;
+}
+
+html[data-theme="light"] .alert-danger {
+  background-color: #f8d7da !important;
+  border-color: #f5c2c7 !important;
+  color: #842029 !important;
+}
+
+/* ── Misc Text ── */
+html[data-theme="light"] .greeting,
+html[data-theme="light"] .dashboard-title {
+  color: var(--text-heading) !important;
+}
+
+html[data-theme="light"] .info-value {
+  color: var(--text-primary) !important;
+}
+
+/* ── Warden Dashboard Specific ── */
+html[data-theme="light"] .stat-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+html[data-theme="light"] .stat-value {
+  color: var(--text-heading) !important;
+}
+
+html[data-theme="light"] .stat-label {
+  color: var(--text-secondary) !important;
+}
+
+/* Override stat-value color classes in light mode */
+html[data-theme="light"] .stat-card .stat-value.text-white {
+  color: var(--text-heading) !important;
+}
+html[data-theme="light"] .stat-card .stat-value.text-danger {
+  color: #dc3545 !important;
+}
+html[data-theme="light"] .stat-card .stat-value.text-warning {
+  color: #e6a500 !important;
+}
+html[data-theme="light"] .stat-card .stat-value.text-success {
+  color: #198754 !important;
+}
+
+html[data-theme="light"] .warden-header {
+  background: linear-gradient(135deg, #eef2ff, #dbeafe) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="light"] .action-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+html[data-theme="light"] .action-card h4 {
+  color: var(--text-heading) !important;
+}
+
+html[data-theme="light"] .action-card:hover {
+  background: #f3efff !important;
+  border-color: #7f5af0 !important;
+}
+
+html[data-theme="light"] .recent-feed {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* ── Buttons (keep visible in both themes) ── */
+html[data-theme="light"] .btn-purple {
+  background-color: #7f5af0 !important;
+  color: #fff !important;
+}
+
+html[data-theme="light"] .btn-outline-primary {
+  border-color: #6a11cb !important;
+  color: #6a11cb !important;
+}
+
+html[data-theme="light"] .btn-outline-light {
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── Links ── */
+html[data-theme="light"] a {
+  color: var(--link-color);
+}
+
+html[data-theme="light"] a.action-card,
+html[data-theme="light"] a.nav-tab {
+  text-decoration: none;
 }
