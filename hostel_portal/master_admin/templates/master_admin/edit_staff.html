@@ -1,0 +1,38 @@
+{% extends 'master_admin/base.html' %}
+{% block title %}Edit {{ type }} | Admin{% endblock %}
+{% block content %}
+
+<h2 class="text-white fw-bold mb-4">Edit Profile: {{ type }} #{{ staff.id }}</h2>
+
+<div class="card-dark p-4 mx-auto" style="max-width: 600px;">
+  <form method="POST">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label text-muted">Email (Read Only)</label>
+      <input type="text" class="form-control bg-dark text-muted border-secondary" value="{{ staff.user.email }}" disabled>
+    </div>
+    <div class="mb-3">
+      <label class="form-label text-white">Full Name</label>
+      <input type="text" name="name" class="form-control bg-dark text-white border-secondary" value="{{ staff.name }}" required>
+    </div>
+
+    {% if type == 'Warden' %}
+    <div class="mb-4">
+      <label class="form-label text-white">Assigned Hostel</label>
+      <select name="hostel_number" class="form-select bg-dark text-white border-secondary" required>
+        <option value="" disabled {% if not staff.hostel_number %}selected{% endif %}>Select Hostel...</option>
+        {% for h in hostels %}
+          <option value="{{ h.name }}" {% if staff.hostel_number == h.name %}selected{% endif %}>{{ h.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-between">
+      <a href="{% url 'admin_search_users' %}" class="btn btn-outline-secondary px-4 fw-bold">Cancel</a>
+      <button type="submit" class="btn btn-danger px-5 fw-bold">FORCE SAVE PROFILE</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

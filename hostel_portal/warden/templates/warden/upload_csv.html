@@ -67,7 +67,7 @@
 
 <div class="dashboard-card">
   <div class="dashboard-title">📤 Upload Student CSV</div>
-  <p class="form-note">Please upload a CSV file with student details (Enrollment Number, Full Name, Email, Branch).</p>
+  <p class="form-note">Please upload a CSV file with student details (Enrollment Number, Full Name, Email, Branch, Semester, Mobile, Room Number, Floor Number).</p>
 
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
@@ -75,6 +75,60 @@
     <button type="submit">Upload</button>
   </form>
 
+  {% if summary %}
+  <div class="mt-4 pt-4 border-top" style="border-color: #3a3a55 !important;">
+    <h4 class="text-white mb-3">Upload Summary</h4>
+    <div class="row text-center mb-4">
+      <div class="col-md-4">
+        <div class="p-3 rounded" style="background: rgba(40, 167, 69, 0.2); border: 1px solid rgba(40, 167, 69, 0.5);">
+          <h3 class="text-success mb-0">{{ summary.inserted }}</h3>
+          <small class="text-success">Records Inserted</small>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-3 rounded" style="background: rgba(255, 193, 7, 0.2); border: 1px solid rgba(255, 193, 7, 0.5);">
+          <h3 class="text-warning mb-0">{{ summary.updated }}</h3>
+          <small class="text-warning">Records Updated</small>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-3 rounded" style="background: rgba(220, 53, 69, 0.2); border: 1px solid rgba(220, 53, 69, 0.5);">
+          <h3 class="text-danger mb-0">{{ summary.errors|length }}</h3>
+          <small class="text-danger">Invalid Rows Detected</small>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   <a href="{% url 'warden_dashboard' %}" class="back-link">⬅️ Back to Dashboard</a>
 </div>
+
+<!-- Toast Container -->
+<div aria-live="polite" aria-atomic="true" class="position-relative">
+  <div class="toast-container position-fixed top-0 end-0 p-3" id="toastPlacement" style="z-index: 9999; margin-top: 60px;">
+    {% if summary and summary.errors %}
+      {% for error in summary.errors %}
+        <div class="toast align-items-center text-white bg-danger border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+          <div class="d-flex">
+            <div class="toast-body">
+              <strong>Row {{ error.row }} ({{ error.field }}):</strong> {{ error.message }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+    var toastList = toastElList.map(function(toastEl) {
+      return new bootstrap.Toast(toastEl, { autohide: true, delay: 4000 })
+    });
+    toastList.forEach(toast => toast.show());
+  });
+</script>
 {% endblock %}

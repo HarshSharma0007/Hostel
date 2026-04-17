@@ -71,6 +71,16 @@
     width: 100%;
   }
 
+  .identity-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    width: 100%;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px dashed var(--border-color, #3a3a55);
+  }
+
   .identity-box {
     display: flex;
     flex-direction: column;
@@ -140,7 +150,14 @@
       grid-template-columns: 1fr;
       gap: 16px;
     }
+    .identity-grid-3 {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
     .identity-box.text-end {
+      text-align: left !important;
+    }
+    .identity-box.text-center {
       text-align: left !important;
     }
   }
@@ -215,14 +232,20 @@
       <div class="identity-box text-end">
         <label class="identity-label">Semester</label>
         <div class="identity-value">{{ profile.semester|default:"Not Assigned" }}</div>
-      </div>
+    </div>
+    
+    <div class="identity-grid-3">
       <div class="identity-box">
-        <label class="identity-label">Room Number</label>
-        <div class="identity-value">{{ profile.room_number|default:"N/A" }}</div>
+        <label class="identity-label">Hostel Number</label>
+        <div class="identity-value text-info">{{ profile.assigned_hostel|default:"N/A" }}</div>
+      </div>
+      <div class="identity-box text-center">
+        <label class="identity-label">Floor Number</label>
+        <div class="identity-value text-warning">{{ profile.floor_number|default:"N/A" }}</div>
       </div>
       <div class="identity-box text-end">
-        <label class="identity-label">Floor Number</label>
-        <div class="identity-value">{{ profile.floor_number|default:"N/A" }}</div>
+        <label class="identity-label">Room Number</label>
+        <div class="identity-value text-success">{{ profile.room_number|default:"N/A" }}</div>
       </div>
     </div>
   </div>
@@ -231,7 +254,7 @@
 
   <!-- ── Details Grid ── -->
   <div class="details-card">
-    <div class="details-title">Details</div>
+    <div class="details-title">Contact Details</div>
 
     <div class="info-grid">
       <div class="info-tile">
@@ -240,35 +263,8 @@
       </div>
 
       <div class="info-tile">
-        <div class="tile-label">Parent Mobile</div>
-        <div class="tile-value">{{ profile.parent_mobile }}</div>
-      </div>
-
-      {% if profile.alt_parent_mobile %}
-      <div class="info-tile">
-        <div class="tile-label">Alt Parent Mobile</div>
-        <div class="tile-value">{{ profile.alt_parent_mobile }}</div>
-      </div>
-      {% endif %}
-
-      <div class="info-tile">
-        <div class="tile-label">City</div>
-        <div class="tile-value">{{ profile.city }}</div>
-      </div>
-
-      <div class="info-tile">
-        <div class="tile-label">PIN Code</div>
-        <div class="tile-value">{{ profile.pin_code }}</div>
-      </div>
-
-      <div class="info-tile">
-        <div class="tile-label">State</div>
-        <div class="tile-value">{{ profile.state }}</div>
-      </div>
-
-      <div class="info-tile full-width">
-        <div class="tile-label">Address</div>
-        <div class="tile-value">{{ profile.address }}</div>
+        <div class="tile-label">Email</div>
+        <div class="tile-value">{{ profile.user.email }}</div>
       </div>
     </div>
   </div>

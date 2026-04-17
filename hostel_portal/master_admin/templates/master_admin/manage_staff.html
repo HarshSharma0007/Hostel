@@ -1,0 +1,163 @@
+{% extends 'master_admin/base.html' %}
+{% block title %}Manage Staff | Admin{% endblock %}
+{% block content %}
+
+<div class="mb-5 border-bottom border-danger pb-3">
+  <h2 class="text-white fw-bold">Assign Pre-approved Staff</h2>
+  <p class="text-muted">Register Wardens and Faculty securely. Validates MITS domains and 10-digit mobile numbers.</p>
+</div>
+
+<!-- Render Messages explicitly above the forms if they aren't globally rendered -->
+{% if messages %}
+<div class="mb-4">
+  {% for message in messages %}
+  <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card-dark p-4 h-100 border border-secondary shadow-lg rounded-4">
+      <h4 class="text-white mb-4"><i class="bi bi-person-plus-fill me-2 text-danger"></i>Manual Entry</h4>
+      <form action="" method="POST" id="manualStaffForm">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_manual">
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-bold text-uppercase">Role</label>
+          <select class="form-select bg-dark text-white border-secondary" name="role" id="staffTypeSelect" required>
+            <option value="warden">Warden</option>
+            <option value="faculty">Faculty</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-bold text-uppercase">Full Name</label>
+          <input type="text" name="name" class="form-control bg-dark text-white border-secondary" required placeholder="John Doe">
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-bold text-uppercase">Email Address</label>
+          <input type="email" name="email" class="form-control bg-dark text-white border-secondary" required placeholder="staff@mitsgwalior.in">
+          <small class="text-danger" style="font-size: 0.75rem;">Must end with @mitsgwalior.in</small>
+        </div>
+
+
+        <div class="mb-3" id="hostelNoDiv">
+          <label class="form-label text-muted small fw-bold text-uppercase">Hostel No.</label>
+          <select name="extra" id="hostelSelect" class="form-select bg-dark text-white border-secondary">
+            <option value="" disabled selected>Select Hostel...</option>
+            {% for h in hostels %}
+              <option value="{{ h.name }}">{{ h.name }}</option>
+            {% empty %}
+              <option value="" disabled>No Hostels created yet.</option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        {# Department Div Removed #}
+
+        <button type="submit" class="btn btn-primary w-100 fw-bold py-2 mt-2">Register Staff</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card-dark p-4 h-100 border border-secondary shadow-lg rounded-4">
+      <h4 class="text-white mb-3"><i class="bi bi-file-earmark-spreadsheet-fill me-2 text-success"></i>Bulk Upload via CSV</h4>
+      
+      <div class="alert alert-dark bg-black border-secondary mb-4">
+          <h6 class="text-white mb-2 pb-2 border-bottom border-secondary">Required CSV Headers:</h6>
+          <ul class="text-muted small mb-0 ps-3">
+              <li><code>Name</code></li>
+              <li><code>Email</code> (@mitsgwalior.in)</li>
+              <li><code>Hostel</code> (REQUIRED for Wardens)</li>
+          </ul>
+      </div>
+
+      <form action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="upload_csv">
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-bold text-uppercase">Assigning Role</label>
+          <select class="form-select bg-dark text-white border-secondary" name="csv_role" required>
+            <option value="warden">Wardens</option>
+            <option value="faculty">Faculty Members</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="form-label text-muted small fw-bold text-uppercase">Upload File</label>
+          <input type="file" name="csv_file" class="form-control bg-dark text-white border-secondary" accept=".csv" required>
+        </div>
+        <button type="submit" class="btn btn-success w-100 fw-bold py-2 mt-2">Process Upload</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<h3 class="text-white mt-5 mb-3 border-bottom border-secondary pb-2">Currently Allowed Registrations</h3>
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card-dark p-3 rounded-4">
+      <h5 class="text-warning mb-3">Wardens</h5>
+      <ul class="list-group list-group-flush">
+        {% for w in allowed_wardens %}
+          <li class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between align-items-center">
+            <div>
+              <strong>{{ w.full_name }}</strong><br>
+              <small class="text-muted">{{ w.email }}</small>
+            </div>
+            <div class="d-flex align-items-center">
+              <span class="badge bg-secondary me-2">{{ w.assigned_hostel }}</span>
+              <a href="{% url 'admin_edit_warden' w.url_key %}" class="btn btn-sm btn-link text-warning p-0"><i class="bi bi-pencil-square"></i></a>
+            </div>
+          </li>
+        {% empty %}
+          <li class="list-group-item bg-transparent text-muted border-0">No wardens pre-approved.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card-dark p-3 rounded-4">
+      <h5 class="text-info mb-3">Faculty</h5>
+      <ul class="list-group list-group-flush">
+        {% for f in allowed_faculty %}
+          <li class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between align-items-center">
+            <div>
+              <strong>{{ f.full_name }}</strong><br>
+              <small class="text-muted">{{ f.email }}</small>
+            </div>
+            {# Department Removed #}
+          </li>
+        {% empty %}
+          <li class="list-group-item bg-transparent text-muted border-0">No faculty pre-approved.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const staffTypeSelect = document.getElementById('staffTypeSelect');
+    const hostelDiv = document.getElementById('hostelNoDiv');
+    const deptDiv = document.getElementById('departmentDiv');
+    const hostelSelect = document.getElementById('hostelSelect');
+    const deptInput = document.getElementById('deptInput');
+
+    staffTypeSelect.addEventListener('change', function() {
+      if (this.value === 'warden') {
+        hostelDiv.style.display = 'block';
+        hostelSelect.name = 'extra';
+        hostelSelect.required = true;
+      } else {
+        hostelDiv.style.display = 'none';
+        hostelSelect.name = 'extra_hostel';
+        hostelSelect.required = false;
+      }
+    });
+  });
+</script>
+{% endblock %}

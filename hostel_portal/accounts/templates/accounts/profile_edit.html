@@ -152,9 +152,13 @@
         <label class="identity-label">Room Number</label>
         <div class="identity-value">{{ request.user.studentprofile.room_number|default:"N/A" }}</div>
       </div>
-      <div>
+      <div style="margin-bottom: 24px;">
         <label class="identity-label">Floor Number</label>
         <div class="identity-value">{{ request.user.studentprofile.floor_number|default:"N/A" }}</div>
+      </div>
+      <div>
+        <label class="identity-label">Assigned Hostel</label>
+        <div class="identity-value text-info">{{ request.user.studentprofile.assigned_hostel|default:"N/A" }}</div>
       </div>
     </div>
   </aside>
@@ -163,7 +167,7 @@
   <main class="main-app-content">
     <div class="form-container" style="margin-top: 0;">
       <h3 class="mb-4" style="color: var(--text-heading, #fff); font-weight: 700;">Edit Profile</h3>
-      <p class="text-muted mb-4">Complete your contact and address details. Name, enrollment, and academic info are retrieved from records and cannot be changed here.</p>
+      <p class="text-muted mb-4">Update your mobile number below. Name, enrollment, branch, semester, hostel, floor and room are assigned by the Warden and cannot be changed here.</p>
 
 
   <form method="post" enctype="multipart/form-data" novalidate>

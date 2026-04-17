@@ -1,0 +1,107 @@
+{% extends 'master_admin/base.html' %}
+{% block title %}Floor Management - {{ hostel.name }}{% endblock %}
+
+{% block content %}
+<style>
+  .dashboard-card {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 40px;
+    background: var(--bg-card, #2a2a40);
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(138, 43, 226, 0.3);
+    border: 1px solid #3a3a55;
+    color: #fff;
+  }
+  .table { color: #fff; border-color: #3a3a55; }
+  .table thead th { border-bottom: 2px solid #555; }
+  .table td { vertical-align: middle; }
+</style>
+
+<div class="dashboard-card">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>🏢 {{ hostel.name }} - Floors</h2>
+    <a href="{% url 'admin_hostel_dashboard' %}" class="btn btn-outline-light">⬅️ Back to Hostels</a>
+  </div>
+
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Floor No.</th>
+        <th>Total Rooms</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for floor in floors %}
+      <tr>
+        <td>Floor {{ floor.floor_number }}</td>
+        <td>{{ floor.rooms.count }}</td>
+        <td>
+          <form method="post" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="toggle_status">
+            <input type="hidden" name="floor_id" value="{{ floor.id }}">
+            <button type="submit" class="btn btn-sm {% if floor.is_active %}btn-success{% else %}btn-secondary{% endif %}">
+              {% if floor.is_active %}Active{% else %}Inactive{% endif %}
+            </button>
+          </form>
+        </td>
+        <td>
+          <a href="{% url 'admin_room_dashboard' floor.id %}" class="btn btn-sm btn-outline-info">Edit Rooms</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" class="text-center text-muted">No floors added to this hostel yet.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <hr class="border-secondary mt-5 mb-4">
+  <h4 class="mb-3">➕ Add New Floor</h4>
+  <form method="post" class="row g-3">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="add_floor">
+    <div class="col-md-5">
+      <input type="number" name="floor_number" class="form-control" placeholder="Floor No. (e.g. 0, 1, 2)" min="0" required>
+    </div>
+    <div class="col-md-5">
+      <input type="number" name="total_rooms" class="form-control" placeholder="Auto-generate N Rooms (Optional)" min="0">
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">Add Floor</button>
+    </div>
+  </form>
+</div>
+
+<!-- Toast Container -->
+<div aria-live="polite" aria-atomic="true" class="position-relative">
+  <div class="toast-container position-fixed top-0 end-0 p-3" id="toastPlacement" style="z-index: 9999; margin-top: 60px;">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="toast align-items-center text-white {% if message.tags == 'error' %}bg-danger{% else %}bg-success{% endif %} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+          <div class="d-flex">
+            <div class="toast-body">
+              <strong>{{ message }}</strong>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+    var toastList = toastElList.map(function(toastEl) {
+      return new bootstrap.Toast(toastEl, { autohide: true, delay: 4000 })
+    });
+    toastList.forEach(toast => toast.show());
+  });
+</script>
+{% endblock %}

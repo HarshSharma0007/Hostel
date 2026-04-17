@@ -1,0 +1,122 @@
+{% extends 'faculty/base.html' %}
+{% block title %}Student Directory | Faculty{% endblock %}
+
+{% block content %}
+<style>
+    .directory-card {
+        background: var(--bg-card, #2a2a40);
+        border-radius: 16px;
+        padding: 30px;
+        border: 1px solid var(--border-color, #3a3a55);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .btn-blue { background-color: #2563eb; color: #fff; border: none; }
+    .btn-blue:hover { background-color: #1d4ed8; color: #fff; }
+    .btn-green { background-color: #10b981; color: #fff; border: none; }
+    .btn-green:hover { background-color: #059669; color: #fff; }
+    .btn-red { background-color: #ef4444; color: #fff; border: none; }
+    .btn-red:hover { background-color: #dc2626; color: #fff; }
+    
+    .table-directory th {
+        background-color: rgba(0,0,0,0.3);
+        color: #10b981;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+</style>
+
+<div class="mb-4">
+    <h2 class="text-white fw-bold">Student Directory</h2>
+    <p class="text-muted">Search and filter student profiles across all hostels.</p>
+</div>
+
+<!-- Search & Filter Section -->
+<div class="directory-card mb-5">
+    <form method="GET" action="{% url 'faculty_student_search' %}" class="row g-3">
+        <!-- Student Search -->
+        <div class="col-md-5">
+            <label class="form-label text-muted small">Search by Enrollment No.</label>
+            <div class="input-group">
+                <input type="text" name="enrollment" class="form-control bg-black border-secondary text-white" 
+                       placeholder="Enter enrollment number..." value="{{ q_enrollment }}">
+                <button type="submit" class="btn btn-blue">Search Student</button>
+            </div>
+        </div>
+
+        <!-- Filter Search -->
+        <div class="col-md-4">
+            <label class="form-label text-muted small">Filter by Hostel</label>
+            <div class="input-group">
+                <select name="hostel" class="form-select bg-black border-secondary text-white">
+                    <option value="">All Hostels</option>
+                    {% for h in hostels %}
+                        <option value="{{ h.name }}" {% if f_hostel == h.name %}selected{% endif %}>{{ h.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-green">Filter</button>
+            </div>
+        </div>
+
+        <!-- Clear Function -->
+        <div class="col-md-3 d-flex align-items-end">
+            <a href="{% url 'faculty_student_search' %}" class="btn btn-red w-100">Clear Search</a>
+        </div>
+    </form>
+</div>
+
+<!-- Search Results Table -->
+<div class="directory-card p-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0 table-directory">
+            <thead>
+                <tr>
+                    <th class="ps-4">S.No.</th>
+                    <th>Enrollment No.</th>
+                    <th>Full Name</th>
+                    <th>Branch</th>
+                    <th>Email ID</th>
+                    <th>Semester</th>
+                    <th>Hostel No.</th>
+                    <th class="pe-4">Floor/Room No.</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if students %}
+                    {% for s in students %}
+                    <tr>
+                        <td class="ps-4 text-muted">{{ forloop.counter }}</td>
+                        <td class="fw-bold">{{ s.enrollment }}</td>
+                        <td>{{ s.name }}</td>
+                        <td>{{ s.branch }}</td>
+                        <td class="small opacity-75">{{ s.email }}</td>
+                        <td>{{ s.semester }}</td>
+                        <td>
+                            <span class="badge bg-secondary opacity-75">{{ s.hostel }}</span>
+                        </td>
+                        <td class="pe-4">
+                            {% if s.room %}
+                                F: {{ s.floor }} / R: {{ s.room }}
+                            {% else %}
+                                <span class="text-muted italic small">Unassigned</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <div class="text-muted">
+                                <p class="mb-0">No students found matching your criteria.</p>
+                                <small>Try adjusting your filters or clearing the search.</small>
+                            </div>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

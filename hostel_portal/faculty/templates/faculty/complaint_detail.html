@@ -1,0 +1,66 @@
+{% extends 'faculty/base.html' %}
+{% block title %}Invigilate Complaint #{{ c.ticket_number }} | Faculty{% endblock %}
+{% block content %}
+<div class="card p-4 rounded-4" style="background: var(--bg-card, #2a2a40); border: 1px solid #3a3a55; color: white;">
+  <div class="d-flex justify-content-between align-items-start mb-4 border-bottom border-secondary pb-3">
+    <div>
+      <h3 class="fw-bold mb-1 text-white">Ticket {{ c.ticket_number }}</h3>
+      <div class="text-muted small">Filed on {{ c.created_at|date:"d M Y, h:i A" }}</div>
+    </div>
+    <div>
+      {% if c.status == 'NotResolved' %}
+        <span class="badge bg-danger fs-6">Pending Warden Action</span>
+      {% elif c.status == 'InProgress' %}
+        <span class="badge bg-warning text-dark fs-6">In Progress</span>
+      {% else %}
+        <span class="badge bg-success fs-6">Resolved</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-6" style="border-right: 1px solid #3a3a55;">
+      <h5 class="text-success fw-bold text-uppercase small mb-3">Student Details</h5>
+      <p><strong>Name:</strong> {{ c.student.name }}</p>
+      <p><strong>Enrollment:</strong> <span class="badge bg-dark fw-normal border border-secondary">{{ c.student.enrollment_number }}</span></p>
+      <p><strong>Hostel:</strong> <span class="badge bg-primary">{{ c.student.assigned_hostel }}</span></p>
+      <p><strong>Room:</strong> {{ c.student.room_number }} (Floor {{ c.student.floor_number }})</p>
+      <p><strong>Branch/Sem:</strong> {{ c.student.branch }} / {{ c.student.semester }}</p>
+      <p><strong>Contact:</strong> {{ c.student.mobile }}</p>
+    </div>
+    
+    <div class="col-md-6">
+      <h5 class="text-success fw-bold text-uppercase small mb-3">Complaint Submission</h5>
+      <p><strong>Category:</strong> <span class="badge bg-secondary">{{ c.category.name }}</span></p>
+      
+      <div class="mt-4">
+        {% for fv in field_values %}
+        <div class="mb-4">
+          <div class="fw-bold text-light" style="font-size: 0.95rem;">{{ fv.field.label }}</div>
+          {% if fv.image_value %}
+            <div class="mt-2 text-center border border-secondary p-2 rounded" style="background: rgba(0,0,0,0.2);">
+              <a href="{{ fv.image_value.url }}" target="_blank">
+                <img src="{{ fv.image_value.url }}" alt="Uploaded proof" class="img-fluid rounded" style="max-height: 250px;">
+              </a>
+              <div class="small text-muted mt-1">Click to view full image</div>
+            </div>
+          {% elif fv.text_value %}
+            <div class="p-3 mt-2 rounded bg-dark border border-secondary text-light">
+              {{ fv.text_value|linebreaksbr }}
+            </div>
+          {% else %}
+            <span class="text-muted fst-italic">No answer provided.</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-5 border-top border-secondary pt-4">
+    <h5 class="text-warning fw-bold">Faculty Invigilation Mode</h5>
+    <p class="text-muted small">You are viewing this ticket in read-only invigilation mode. If this complaint appears to be fake or abusive, or if the warden is not taking adequate action, please handle it via standard administrative processes.</p>
+    <a href="{% url 'faculty_dashboard' %}" class="btn btn-outline-light mt-2 px-4">← Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

@@ -216,7 +216,7 @@ def student_submit_complaint(request):
 
     profile = request.user.studentprofile
     # 🕵️ Security Check: If profile is incomplete, force edit
-    if profile.name == 'Unknown' or not profile.mobile or not profile.address:
+    if profile.name == 'Unknown' or not profile.mobile:
         messages.warning(request, "Please complete your profile details before submitting a complaint.")
         return redirect('profile_edit')
 
@@ -245,6 +245,15 @@ def student_submit_complaint(request):
             # Special case for checkbox (HTML sends 'on' if checked, nothing if unchecked)
             if field.field_type == 'checkbox':
                 val = 'Yes' if val == 'on' else 'No'
+            elif field.field_type == 'dropdown':
+                # Convert the submitted option ID back to the corresponding text
+                if val:
+                    try:
+                        from .models import FieldOption
+                        option = FieldOption.objects.get(id=val)
+                        val = option.text
+                    except (FieldOption.DoesNotExist, ValueError):
+                        pass
 
             ComplaintFieldValue.objects.create(
                 complaint=complaint,
@@ -275,7 +284,7 @@ def student_complaint_list(request):
     
     profile = request.user.studentprofile
     # 🕵️ Security Check: If profile is incomplete, force edit
-    if profile.name == 'Unknown' or not profile.mobile or not profile.address:
+    if profile.name == 'Unknown' or not profile.mobile:
         return redirect('profile_edit')
         
     complaints = Complaint.objects.filter(student=profile).order_by('-created_at')

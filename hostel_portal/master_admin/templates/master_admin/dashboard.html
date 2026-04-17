@@ -1,0 +1,91 @@
+{% extends 'master_admin/base.html' %}
+{% block title %}Overview | Admin{% endblock %}
+{% block content %}
+<style>
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+  .stat-card { background: var(--bg-card, #2a2a40); padding: 30px; border-radius: 16px; text-align: center; border: 1px solid #3a3a55; border-top: 5px solid #dc2626; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+  .stat-value { font-size: 3rem; font-weight: 900; }
+  .stat-label { color: #a0a0b0; font-size: 1rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;}
+</style>
+
+<div class="mb-5 border-bottom border-danger pb-3">
+  <h1 class="text-white fw-bold">Admin Panel</h1>
+  <p class="text-danger fw-bold">Full system override capabilities enabled. Welcome, {{ profile.name }}</p>
+</div>
+
+<h3 class="mb-3 text-white">System Metrics</h3>
+<div class="stats-grid">
+  <div class="stat-card">
+    <span class="stat-value text-white">{{ stats.students }}</span>
+    <span class="stat-label d-block mt-2">Total Assigned Students</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-value text-white">{{ stats.wardens }}</span>
+    <span class="stat-label d-block mt-2">Total Assigned Wardens</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-value text-white">{{ stats.faculty }}</span>
+    <span class="stat-label d-block mt-2">Total Assigned Faculty</span>
+  </div>
+</div>
+
+<div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+  <div class="stat-card" style="border-top-color: #10b981;">
+    <span class="stat-value text-success">{{ stats.total_hostels }}</span>
+    <span class="stat-label d-block mt-2">Total Hostels</span>
+  </div>
+  <div class="stat-card" style="border-top-color: #3b82f6;">
+    <span class="stat-value text-primary">{{ stats.complaints_total }}</span>
+    <span class="stat-label d-block mt-2">Total System Complaints</span>
+  </div>
+  <div class="stat-card" style="border-top-color: #f59e0b;">
+    <span class="stat-value text-warning">{{ stats.complaints_pending }}</span>
+    <span class="stat-label d-block mt-2">Total Pending</span>
+  </div>
+</div>
+
+<h4 class="text-white mt-5 mb-3">Recent Students Enrolled</h4>
+<div class="table-responsive mb-5">
+  <table class="table table-dark table-hover align-middle">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Enrollment</th>
+        <th>Semester</th>
+        <th>Hostel</th>
+        <th>Floor / Room</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rs in recent_students %}
+      <tr>
+        <td>{{ rs.name }}</td>
+        <td>{{ rs.enrollment_number }}</td>
+        <td>{{ rs.semester|default:"N/A" }}</td>
+        <td>{{ rs.assigned_hostel|default:"N/A" }}</td>
+        <td>Floor {{ rs.floor_number|default:"N/A" }} / Room {{ rs.room_number|default:"N/A" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="text-center text-muted py-3">No students enrolled yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="row mt-5 g-4">
+  <div class="col-md-6">
+    <div class="card-dark p-4 h-100">
+      <h4 class="text-white mb-3">Directory Search</h4>
+      <p class="text-muted">Quickly locate any student, faculty, or warden based on enrollment, room number, or name, and modify their details.</p>
+      <a href="{% url 'admin_search_users' %}" class="btn btn-danger w-100 fw-bold">Open Directory →</a>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card-dark p-4 h-100">
+      <h4 class="text-white mb-3">Ticket Override</h4>
+      <p class="text-muted">Review every complaint in the system and execute manual overrides for statuses or completely erase invalid tickets.</p>
+      <a href="{% url 'admin_complaint_manager' %}" class="btn btn-outline-danger w-100 fw-bold">Open Tickets →</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

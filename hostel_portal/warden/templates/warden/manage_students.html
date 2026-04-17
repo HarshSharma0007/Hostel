@@ -1,0 +1,97 @@
+{% extends 'warden/base.html' %}
+{% block title %}Manage Students | Warden{% endblock %}
+
+{% block content %}
+<style>
+    .search-card {
+        background: var(--bg-card, #2a2a40);
+        border-radius: 16px;
+        padding: 30px;
+        border: 1px solid var(--border-color, #3a3a55);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .result-table {
+        background: rgba(0,0,0,0.2) !important;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .badge-active { background-color: #10b981; }
+    .badge-pre { background-color: #6b7280; }
+</style>
+
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h2 class="text-white fw-bold mb-0">Manage Students</h2>
+        <p class="text-muted">Search and manage student housing details.</p>
+    </div>
+    <a href="{% url 'upload_csv' %}" class="btn btn-purple">Upload CSV</a>
+</div>
+
+<div class="search-card mb-5">
+    <form method="GET" action="{% url 'manage_students' %}" class="row g-3">
+        <div class="col-md-9">
+            <input type="text" name="q" class="form-control bg-black border-secondary text-white p-3" 
+                   placeholder="Search by Enrollment Number only..." value="{{ q }}">
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100 p-3 fw-bold">Search</button>
+        </div>
+    </form>
+</div>
+
+{% if has_search %}
+    <h4 class="text-white mb-4">Search Results</h4>
+    {% if students %}
+    <div class="search-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0">
+                <thead class="bg-black">
+                    <tr>
+                        <th class="ps-4">Name</th>
+                        <th>Enrollment</th>
+                        <th>Housing</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in students %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold">{{ s.name }}</div>
+                            <small class="text-muted">{{ s.email }}</small>
+                        </td>
+                        <td>{{ s.enrollment }}</td>
+                        <td>
+                            {% if s.room %}
+                                Floor {{ s.floor }}, Room {{ s.room }}
+                            {% else %}
+                                <span class="text-muted">Not assigned</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge {% if s.status == 'Active' %}badge-active{% else %}badge-pre{% endif %}">
+                                {{ s.status }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'edit_student_warden' s.enrollment %}" class="btn btn-sm btn-outline-warning">Edit Housing</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <h5 class="text-muted">No students found matching "{{ q }}"</h5>
+    </div>
+    {% endif %}
+{% else %}
+    <div class="text-center py-5">
+        <p class="text-muted">Enter an enrollment number above to begin.</p>
+    </div>
+{% endif %}
+
+{% endblock %}

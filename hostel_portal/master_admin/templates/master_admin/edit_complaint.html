@@ -1,0 +1,111 @@
+{% extends 'master_admin/base.html' %}
+{% block title %}Override Ticket | Admin{% endblock %}
+{% block content %}
+
+<h2 class="text-white fw-bold mb-4">Override Ticket: #{{ c.ticket_number }}</h2>
+
+<div class="row g-4">
+  <div class="col-md-7">
+    <div class="card-dark p-4 h-100 border border-secondary shadow-sm rounded-4">
+      <h4 class="text-white mb-4 border-bottom border-secondary pb-2">Submission Context</h4>
+      
+      <!-- Student Identity Bar -->
+      <div class="p-3 mb-4 rounded-4 d-flex align-items-center justify-content-between" style="background: rgba(220, 38, 38, 0.05); border: 1px solid rgba(220, 38, 38, 0.1);">
+          <div class="d-flex align-items-center gap-3">
+              {% if c.student.photo_url %}
+                  <img src="{{ c.student.photo_url }}" class="icon-circle shadow-sm" style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(220, 38, 38, 0.3);">
+              {% else %}
+                  <div class="icon-circle shadow-sm" style="width: 55px; height: 55px; font-size: 1.25rem; background: linear-gradient(135deg, #b91c1c, #dc2626); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+                      {{ c.student.name|slice:":1"|upper }}
+                  </div>
+              {% endif %}
+              <div>
+                  <h5 class="mb-0 text-white">{{ c.student.name }}</h5>
+                  <div class="small text-muted">{{ c.student.enrollment_number }}</div>
+              </div>
+          </div>
+          <div class="text-end">
+              <div class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Location</div>
+              <div class="text-white">Hostel {{ c.student.assigned_hostel }} | Room {{ c.student.room_number }}</div>
+              <div class="small text-muted">Floor {{ c.student.floor_number|default:"N/A" }}</div>
+          </div>
+      </div>
+
+      <h3 class="text-white mb-3" style="font-weight: 800;">{{ c.custom_title }}</h3>
+      
+      <div class="mb-4">
+          <span class="badge bg-danger px-3 py-2 fs-6">{{ c.category.name }}</span>
+      </div>
+
+      <hr class="border-secondary my-4">
+      <h5 class="text-danger mt-4 mb-3" style="font-weight: 700;">Form Responses</h5>
+
+      {% for answer in answers %}
+        <div class="mb-4">
+          <label class="form-label text-muted small fw-bold text-uppercase">{{ answer.field.label }}</label>
+          {% if answer.field.field_type == 'image' %}
+             {% if answer.image_value %}
+                <div>
+                  <a href="{{ answer.image_value.url }}" target="_blank">
+                    <img src="{{ answer.image_value.url }}" alt="Complaint Image" class="img-fluid rounded border border-secondary" style="max-height: 250px;">
+                  </a>
+                </div>
+             {% else %}
+                <p class="text-muted small"><em>No image provided.</em></p>
+             {% endif %}
+          {% else %}
+            <div class="p-3 bg-black rounded border border-secondary">
+              <p class="text-white m-0" style="white-space: pre-wrap;">{{ answer.text_value|default:"<em>N/A</em>" }}</p>
+            </div>
+          {% endif %}
+        </div>
+      {% empty %}
+        <p class="text-muted text-center my-4">No structured responses provided.</p>
+      {% endfor %}
+      
+      <h5 class="text-danger mt-4 mb-3 border-top border-secondary pt-3" style="font-weight: 700;">Contact Information</h5>
+      <div class="row">
+        <div class="col-6 mb-3">
+            <label class="small text-muted mb-1 text-uppercase fw-bold">Mobile Number</label>
+            <div class="text-white fw-bold">{{ c.student.mobile|default:"N/A" }}</div>
+        </div>
+        <div class="col-6 mb-3">
+            <label class="small text-muted mb-1 text-uppercase fw-bold">Email Address</label>
+            <div class="text-white small">{{ c.student.user.email }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-5">
+    <div class="card-dark p-4 border border-danger">
+      <h4 class="text-white mb-4 border-bottom border-danger pb-2">Admin Overrides</h4>
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_status">
+        <div class="mb-4">
+          <label class="form-label text-white fw-bold">Force Status Change</label>
+          <select name="status" class="form-select bg-dark text-white border-secondary mb-3">
+            <option value="NotResolved" {% if c.status == 'NotResolved' %}selected{% endif %}>Pending</option>
+            <option value="InProgress" {% if c.status == 'InProgress' %}selected{% endif %}>In Progress</option>
+            <option value="Resolved" {% if c.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+            <option value="Invalid" {% if c.status == 'Invalid' %}selected{% endif %}>Invalid</option>
+          </select>
+          <button type="submit" class="btn btn-warning w-100 fw-bold">Apply Status Override</button>
+        </div>
+      </form>
+      
+      <hr class="border-secondary my-4">
+
+      <form method="POST" onsubmit="return confirm('Are you absolutely sure you want to completely erase this ticket from the database? This cannot be undone.');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete">
+        <label class="form-label text-danger fw-bold d-block">Destructive Actions</label>
+        <button type="submit" class="btn btn-outline-danger w-100 fw-bold">PERMANENTLY ERASE TICKET</button>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

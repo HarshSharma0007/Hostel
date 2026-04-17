@@ -98,130 +98,102 @@ def upload_csv(request):
         messages.error(request, "Access restricted to wardens.")
         return redirect('logout')
 
+    summary = None
+
     if request.method == 'POST':
         form = CSVUploadForm(request.POST, request.FILES)
         if form.is_valid():
             file = request.FILES['csv_file']
             try:
-                decoded = file.read().decode('utf-8').splitlines()
-                reader = csv.DictReader(decoded)
+                decoded = file.read().decode('utf-8-sig').splitlines()
+                reader = list(csv.DictReader(decoded))
             except Exception:
                 messages.error(request, "Invalid CSV file formatting.")
                 return redirect('upload_csv')
 
-            preview_data = []
+            records_updated = 0
+            records_inserted = 0
+            errors = []
             
-            # Fetch existing emails to flag duplicates during preview
-            existing_emails = set(AllowedStudent.objects.values_list('email', flat=True))
-
-            for row in reader:
-                email = row.get('Email', '').strip()
+            for row_idx, row in enumerate(reader, start=2):
+                email_val = row.get('Email', '').strip().lower()
                 enrollment = row.get('Enrollment Number', '').strip()
                 name = row.get('Full Name', '').strip()
                 branch = row.get('Branch', '').strip()
                 semester = row.get('Semester', '').strip()
-
-                if not email or not enrollment or not name:
-                    continue # Skip empty rows
-
-                is_duplicate = email in existing_emails
+                mobile = row.get('Mobile', '').strip()
+                room = row.get('Room Number', '').strip()
+                floor = row.get('Floor Number', '').strip()
                 
-                preview_data.append({
-                    'email': email,
-                    'enrollment': enrollment,
-                    'name': name,
-                    'branch': branch,
-                    'semester': semester,
-                    'is_duplicate': is_duplicate
-                })
-
-            # Save the preview to the session to be processed upon confirmation
-            request.session['csv_preview_data'] = preview_data
-            
-            return render(request, 'warden/upload_csv_preview.html', {
-                'preview_data': preview_data,
-                'total_rows': len(preview_data),
-                'total_duplicates': sum(1 for row in preview_data if row['is_duplicate'])
-            })
+                if not email_val and not enrollment:
+                    continue
+                    
+                if not email_val.endswith('@mitsgwl.ac.in'):
+                    errors.append({'row': row_idx, 'field': 'Email', 'message': f"Must end with @mitsgwl.ac.in"})
+                    continue
+                    
+                if not mobile.isdigit() or len(mobile) != 10:
+                    errors.append({'row': row_idx, 'field': 'Mobile', 'message': f"Must be exactly 10 digits"})
+                    continue
+                
+                existing = AllowedStudent.objects.filter(enrollment_number=enrollment).first()
+                if existing:
+                    if existing.email != email_val and AllowedStudent.objects.filter(email=email_val).exists():
+                        errors.append({'row': row_idx, 'field': 'Email', 'message': f"Email already in use."})
+                        continue
+                        
+                    changed = False
+                    if existing.email != email_val: changed = True; existing.email = email_val
+                    if existing.full_name != name: changed = True; existing.full_name = name
+                    if existing.branch != branch: changed = True; existing.branch = branch
+                    if existing.semester != semester: changed = True; existing.semester = semester
+                    if existing.mobile != mobile: changed = True; existing.mobile = mobile
+                    if existing.room_number != room: changed = True; existing.room_number = room
+                    if existing.floor_number != floor: changed = True; existing.floor_number = floor
+                    
+                    if changed:
+                        existing.save()
+                        records_updated += 1
+                        
+                        sp = StudentProfile.objects.filter(enrollment_number=enrollment).first()
+                        if sp:
+                            sp.name = name
+                            sp.branch = branch
+                            sp.semester = semester
+                            sp.mobile = mobile
+                            sp.room_number = room
+                            sp.floor_number = floor
+                            if getattr(sp.user, 'email', '') != email_val:
+                                sp.user.email = email_val
+                                sp.user.save()
+                            sp.save()
+                else:
+                    if AllowedStudent.objects.filter(email=email_val).exists():
+                        errors.append({'row': row_idx, 'field': 'Email', 'message': f"Email already in use."})
+                        continue
+                        
+                    AllowedStudent.objects.create(
+                        enrollment_number=enrollment,
+                        email=email_val,
+                        full_name=name,
+                        branch=branch,
+                        semester=semester,
+                        mobile=mobile,
+                        room_number=room,
+                        floor_number=floor
+                    )
+                    records_inserted += 1
+                    
+            summary = {
+                'updated': records_updated,
+                'inserted': records_inserted,
+                'errors': errors,
+                'total': len(reader)
+            }
     else:
         form = CSVUploadForm()
 
-    return render(request, 'warden/upload_csv.html', {'form': form})
-
-@login_required
-def confirm_csv_upload(request):
-    email = request.user.email.lower()
-    if not email.endswith('@gmail.com'):
-        return redirect('logout')
-
-    if not hasattr(request.user, 'wardenprofile'):
-        return redirect('logout')
-        
-    if request.method == 'POST':
-        preview_data = request.session.get('csv_preview_data', [])
-        if not preview_data:
-            messages.error(request, "Session expired or no data found. Please re-upload the CSV.")
-            return redirect('upload_csv')
-            
-        added_count = 0
-        
-        for row in preview_data:
-            email = row['email']
-            enrollment = row['enrollment']
-            name = row['name']
-            branch = row['branch']
-            semester = row['semester']
-
-            # Save to AllowedStudent
-            AllowedStudent.objects.update_or_create(
-                email=email,
-                defaults={
-                    'enrollment_number': enrollment,
-                    'full_name': name,
-                    'branch': branch,
-                    'semester': semester,
-                }
-            )
-
-            # Create Django user if not exists
-            user, created = User.objects.get_or_create(
-                email=email,
-                defaults={'username': enrollment}
-            )
-            if created:
-                user.first_name = name
-                user.save()
-                added_count += 1
-
-            # Create/update StudentProfile with warden-assigned fields
-            profile, _ = StudentProfile.objects.get_or_create(user=user)
-            profile.name = name
-            profile.enrollment_number = enrollment
-            profile.branch = branch
-            profile.semester = semester
-            profile.save()
-
-            if created:
-                try:
-                    send_mail(
-                        'Hostel Registration',
-                        f'Hello {name},\n\nYou have been added to the hostel system. '
-                        f'Please login and complete your profile.\n\nEnrollment: {enrollment}',
-                        'admin@hostel.com',
-                        [email],
-                        fail_silently=True,
-                    )
-                except Exception:
-                    pass  # Don't block upload if email fails
-
-        # Clear session
-        if 'csv_preview_data' in request.session:
-            del request.session['csv_preview_data']
-
-        messages.success(request, f"Successfully processed {len(preview_data)} students. ({added_count} new accounts created).")
-        return redirect('warden_dashboard')
-        
-    return redirect('upload_csv')
+    return render(request, 'warden/upload_csv.html', {'form': form, 'summary': summary})
 
 
 @login_required
@@ -319,3 +291,96 @@ def send_invitations(request):
         messages.info(request, "All pre-approved students have already joined!")
 
     return redirect('warden_dashboard')
+
+@login_required
+def manage_students_view(request):
+    """
+    Search and list students for the Warden.
+    """
+    email = request.user.email.lower()
+    if not email.endswith('@gmail.com'):
+        return redirect('warden_logout')
+    if not hasattr(request.user, 'wardenprofile'):
+        return redirect('warden_logout')
+
+    profile = request.user.wardenprofile
+    q = request.GET.get('q', '').strip()
+    
+    # Search logic (Enrollment only as requested)
+    students = []
+    has_search = False
+    if q:
+        has_search = True
+        # Look in both Profile and Allowed tables
+        profiles = StudentProfile.objects.filter(enrollment_number__icontains=q)
+        allowed = AllowedStudent.objects.filter(enrollment_number__icontains=q)
+        
+        seen_enrollments = set()
+        for s in profiles:
+            students.append({
+                'name': s.name, 'enrollment': s.enrollment_number, 'email': s.user.email,
+                'room': s.room_number, 'floor': s.floor_number, 'status': 'Active'
+            })
+            seen_enrollments.add(s.enrollment_number)
+        for s in allowed:
+            if s.enrollment_number not in seen_enrollments:
+                students.append({
+                    'name': s.full_name, 'enrollment': s.enrollment_number, 'email': s.email,
+                    'room': s.room_number, 'floor': s.floor_number, 'status': 'Pre-approved'
+                })
+    else:
+        # Default: list some recent students or just wait for query
+        pass
+
+    return render(request, 'warden/manage_students.html', {
+        'profile': profile,
+        'q': q,
+        'has_search': has_search,
+        'students': students
+    })
+
+@login_required
+def edit_student_warden_view(request, enrollment):
+    """
+    Edit room/floor for a student.
+    """
+    email = request.user.email.lower()
+    if not email.endswith('@gmail.com'):
+        return redirect('warden_logout')
+    if not hasattr(request.user, 'wardenprofile'):
+        return redirect('warden_logout')
+
+    profile = request.user.wardenprofile
+    
+    # Try to find the student in either model
+    sp = StudentProfile.objects.filter(enrollment_number=enrollment).first()
+    asp = AllowedStudent.objects.filter(enrollment_number=enrollment).first()
+    
+    if not sp and not asp:
+        messages.error(request, "Student not found.")
+        return redirect('manage_students')
+
+    name = sp.name if sp else asp.full_name
+
+    if request.method == 'POST':
+        room = request.POST.get('room_number')
+        floor = request.POST.get('floor_number')
+        
+        if sp:
+            sp.room_number = room
+            sp.floor_number = floor
+            sp.save()
+        if asp:
+            asp.room_number = room
+            asp.floor_number = floor
+            asp.save()
+            
+        messages.success(request, f"Housing details updated for {name}.")
+        return redirect('manage_students')
+
+    return render(request, 'warden/edit_student.html', {
+        'profile': profile,
+        'enrollment': enrollment,
+        'name': name,
+        'student': sp or asp
+    })

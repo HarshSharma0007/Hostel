@@ -1,0 +1,159 @@
+{% extends 'master_admin/base.html' %}
+{% block title %}Manage Hostel Details | Admin{% endblock %}
+{% block content %}
+
+<div class="mb-5 border-bottom border-primary pb-3">
+  <h2 class="text-white fw-bold">Hostel Details & Dimensions Configuration</h2>
+  <p class="text-muted">Set the max boundaries and capacity properties for individual floors across all recognized Hostels. Room numbers automatically compute downwards dynamically.</p>
+</div>
+
+<div class="row g-4 justify-content-center">
+  <div class="col-lg-8">
+    <div class="card-dark p-5 h-100 border border-secondary shadow-lg rounded-4">
+      <h4 class="text-white mb-4"><i class="bi bi-building-fill-gear me-2 text-primary"></i>Floor Configurator</h4>
+      
+      <form action="" method="POST" id="hostelConfigForm">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6 mb-3">
+            <label class="form-label text-muted small fw-bold text-uppercase">Hostel Selection</label>
+            <select class="form-select bg-dark text-white border-secondary" name="hostel_number" id="hostelSelect" required>
+              <option value="" disabled selected>Choose target hostel...</option>
+              <option value="Hostel 1">Hostel 1</option>
+              <option value="Hostel 2">Hostel 2</option>
+              <option value="Hostel 3">Hostel 3</option>
+              <option value="Hostel 4">Hostel 4</option>
+              <option value="Hostel 5">Hostel 5</option>
+            </select>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label class="form-label text-muted small fw-bold text-uppercase">Floor Level</label>
+            <select class="form-select bg-dark text-white border-secondary" name="floor_number" id="floorSelect" required disabled>
+              <option value="" disabled selected>Choose floor module...</option>
+              <option value="0">Floor 0 (Ground)</option>
+              <option value="1">Floor 1</option>
+              <option value="2">Floor 2</option>
+              <option value="3">Floor 3</option>
+              <option value="4">Floor 4</option>
+              <option value="5">Floor 5</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label text-muted small fw-bold text-uppercase">Floor Room Capacity <span id="loadingSpan" class="badge bg-secondary ms-2" style="display:none;">Loading Data...</span></label>
+          <div class="input-group">
+            <span class="input-group-text bg-black border-secondary text-muted"><i class="bi bi-ドア-closed"></i> Rooms </span>
+            <input type="number" min="0" max="99" name="total_rooms" id="roomsInput" class="form-control bg-dark text-white border-secondary" placeholder="Enter total traversable rooms (1-99)" required disabled>
+          </div>
+        </div>
+        
+        <div class="mb-4 p-3 bg-black border border-secondary rounded-3">
+          <label class="form-label text-info small fw-bold text-uppercase mb-2"><i class="bi bi-eye"></i> Generated Pattern Preview</label>
+          <select id="previewSelect" class="form-select bg-dark text-secondary border-secondary" disabled>
+            <option>Awaiting input parameters...</option>
+          </select>
+          <div class="form-text mt-2 text-muted" style="font-size: 0.8rem;">
+            Rule constraint enforced: <code class="text-white">[Floor Number] + [2-Digit Trailing Index]</code>. Example: Floor 3 / Room 5 = 305.
+          </div>
+        </div>
+
+        <button type="submit" id="saveBtn" class="btn btn-primary w-100 fw-bold py-3 mt-2" style="font-size: 1.1rem; border-radius: 10px;" disabled>Save Configuration Database</button>
+      </form>
+      
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const hostelSelect = document.getElementById('hostelSelect');
+    const floorSelect = document.getElementById('floorSelect');
+    const roomsInput = document.getElementById('roomsInput');
+    const previewSelect = document.getElementById('previewSelect');
+    const saveBtn = document.getElementById('saveBtn');
+    const loadingSpan = document.getElementById('loadingSpan');
+
+    function updatePreview() {
+      const floorStr = floorSelect.value;
+      const roomsCountStr = roomsInput.value;
+      
+      previewSelect.innerHTML = '';
+      
+      if (!floorStr || !roomsCountStr || isNaN(roomsCountStr) || parseInt(roomsCountStr) <= 0) {
+        let defaultOpt = document.createElement('option');
+        defaultOpt.text = 'No rooms generated.';
+        previewSelect.appendChild(defaultOpt);
+        return;
+      }
+      
+      const floor = parseInt(floorStr);
+      const limit = parseInt(roomsCountStr);
+      
+      for(let i = 1; i <= limit; i++) {
+        let padding = i < 10 ? '0' + i : i.toString();
+        let roomNumStr = floor.toString() + padding;
+        
+        let opt = document.createElement('option');
+        opt.value = roomNumStr;
+        opt.text = 'Room ' + roomNumStr;
+        previewSelect.appendChild(opt);
+      }
+    }
+
+    async function fetchFloorData() {
+      const h = hostelSelect.value;
+      const f = floorSelect.value;
+      
+      if (!h || f === "") {
+        return; 
+      }
+      
+      // Lock inputs while fetching
+      roomsInput.disabled = true;
+      saveBtn.disabled = true;
+      loadingSpan.style.display = 'inline-block';
+      roomsInput.value = '';
+      updatePreview();
+      
+      try {
+        const response = await fetch(`/master-admin/api/get-floor-config/?hostel_number=${encodeURIComponent(h)}&floor_number=${encodeURIComponent(f)}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.total_rooms !== undefined) {
+             roomsInput.value = data.total_rooms > 0 ? data.total_rooms : '';
+             updatePreview();
+          }
+        }
+      } catch (err) {
+        console.error("HTTP Fetch Error: ", err);
+      } finally {
+        roomsInput.disabled = false;
+        saveBtn.disabled = false;
+        loadingSpan.style.display = 'none';
+        roomsInput.focus();
+      }
+    }
+
+    hostelSelect.addEventListener('change', function() {
+      floorSelect.disabled = false;
+      if (floorSelect.value !== '') {
+          fetchFloorData();
+      }
+    });
+
+    floorSelect.addEventListener('change', function() {
+        if (hostelSelect.value !== '') {
+            fetchFloorData();
+        }
+    });
+    
+    roomsInput.addEventListener('input', function() {
+        if (parseInt(this.value) > 99) this.value = 99; // limit visually to 99 rooms max.
+        updatePreview();
+    });
+
+  });
+</script>
+{% endblock %}

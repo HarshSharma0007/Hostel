@@ -5,6 +5,8 @@ __pycache__/
 
 # Virtual environments
 .venv/
+.venvmac/
+venv
 env/
 
 # SQLite DB
@@ -15,3 +17,8 @@ env/
 .backend
 
 .env
+
+# directories
+antigravity/
+hostel_system/
+hostel_portal/media/

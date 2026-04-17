@@ -1,0 +1,185 @@
+{% extends 'master_admin/base.html' %}
+{% block title %}Directory Search | Admin{% endblock %}
+{% block content %}
+
+<div class="mb-4">
+  <h2 class="text-white fw-bold">Directory Search</h2>
+  <p class="text-muted">Query system database bypassing standard restrictions. Can query by Name, Enrollment, Room Number, or Email.</p>
+</div>
+
+<form action="" method="GET" class="mb-5 bg-dark p-4 rounded-4 border border-secondary shadow-lg">
+  <div class="row g-3 mb-3">
+    <!-- Required full-width search bar -->
+    <div class="col-12">
+      <input type="text" name="q" class="form-control bg-black border-secondary text-white p-3" placeholder="Keyword search across all fields..." value="{{ q }}">
+    </div>
+    
+    <!-- Multi-select roles -->
+    <div class="col-md-3">
+      <label class="text-muted small fw-bold text-uppercase mb-2">Roles</label>
+      <select name="roles" class="form-select bg-black border-secondary text-white" multiple style="height: 100px;">
+        <option value="student" {% if 'student' in roles %}selected{% endif %}>Student</option>
+        <option value="warden" {% if 'warden' in roles %}selected{% endif %}>Warden</option>
+        <option value="faculty" {% if 'faculty' in roles %}selected{% endif %}>Faculty</option>
+      </select>
+      <small class="text-muted" style="font-size: 0.7rem;">Hold Ctrl/Cmd to select multiple</small>
+    </div>
+
+    <!-- Dropdown Hostel -->
+    <div class="col-md-3">
+      <label class="text-muted small fw-bold text-uppercase mb-2">Hostel</label>
+      <select name="hostel" class="form-select bg-black border-secondary text-white p-2">
+        <option value="">Any Hostel</option>
+        {% for h in all_hostels %}
+          <option value="{{ h }}" {% if hostel == h %}selected{% endif %}>{{ h }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <!-- Text Enrollment -->
+    <div class="col-md-3">
+      <label class="text-muted small fw-bold text-uppercase mb-2">Enrollment Number</label>
+      <input type="text" name="enrollment" class="form-control bg-black border-secondary text-white p-2" placeholder="e.g. 0901..." value="{{ enrollment }}">
+      <div class="form-check mt-2">
+        <input class="form-check-input" type="checkbox" name="exact_enrollment" id="exact_enrollment" {% if exact_enrollment %}checked{% endif %}>
+        <label class="form-check-label text-muted small" for="exact_enrollment">Exact Match</label>
+      </div>
+    </div>
+    
+    <!-- Text Email -->
+    <div class="col-md-3">
+      <label class="text-muted small fw-bold text-uppercase mb-2">Email Address</label>
+      <input type="text" name="email" class="form-control bg-black border-secondary text-white p-2" placeholder="user@example.com" value="{{ email }}">
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-center gap-3 border-top border-secondary pt-4 mt-2">
+    <button type="submit" class="btn btn-primary px-5 py-2 fw-bold" style="border-radius: 8px;">Search</button>
+    <button type="submit" class="btn btn-success px-5 py-2 fw-bold" style="border-radius: 8px;">Filter</button>
+    <a href="{% url 'admin_search_users' %}" class="btn btn-danger px-5 py-2 fw-bold" style="border-radius: 8px;">Clear</a>
+  </div>
+</form>
+
+{% if has_search %}
+  <h4 class="text-white mb-4">Search Results</h4>
+  <div class="card-dark p-4 shadow-lg mb-5">
+    
+    <!-- STUDENTS -->
+    <h5 class="text-danger border-bottom border-danger pb-2 mb-3">Students Found: {{ students|length }}</h5>
+    {% if students %}
+      <div class="table-responsive mb-4">
+        <table class="table table-dark table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Enrollment</th>
+              <th>Email</th>
+              <th>Hostel / Room</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in students %}
+            <tr>
+              <td>{{ s.name }}</td>
+              <td>{{ s.enrollment }}</td>
+              <td class="text-muted">{{ s.email }}</td>
+              <td>{{ s.hostel }} - Room {{ s.room }}</td>
+              <td>
+                <span class="badge {% if s.status == 'Active' %}bg-success{% else %}bg-secondary{% endif %}">
+                  {{ s.status }}
+                </span>
+              </td>
+              <td><a href="{% url 'admin_edit_student' s.edit_url_id %}" class="btn btn-sm btn-outline-warning">Edit Profile</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted mb-4">No student matched this query.</p>
+    {% endif %}
+
+    <!-- WARDENS -->
+    <h5 class="text-danger border-bottom border-danger pb-2 mb-3">Wardens Found: {{ wardens|length }}</h5>
+    {% if wardens %}
+      <div class="table-responsive mb-4">
+        <table class="table table-dark table-hover align-middle">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Assigned Hostel</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for w in wardens %}
+            <tr>
+              <td>#{{ w.id }}</td>
+              <td>{{ w.name }}</td>
+              <td class="text-muted">{{ w.email }}</td>
+              <td>{{ w.hostel }}</td>
+              <td>
+                <span class="badge {% if w.status == 'Active' %}bg-success{% else %}bg-secondary{% endif %}">
+                  {{ w.status }}
+                </span>
+              </td>
+              <td><a href="{% url 'admin_edit_warden' w.url_key %}" class="btn btn-sm btn-outline-warning">Edit Profile</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted mb-4">No warden matched this query.</p>
+    {% endif %}
+
+    <!-- FACULTY -->
+    <h5 class="text-danger border-bottom border-danger pb-2 mb-3">Faculty Found: {{ faculty|length }}</h5>
+    {% if faculty %}
+      <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for f in faculty %}
+            <tr>
+              <td>#{{ f.id }}</td>
+              <td>{{ f.name }}</td>
+              <td class="text-muted">{{ f.email }}</td>
+              <td>
+                <span class="badge {% if f.status == 'Active' %}bg-success{% else %}bg-secondary{% endif %}">
+                  {{ f.status }}
+                </span>
+              </td>
+              <td>
+                {% if f.id != 'Pre-app' %}
+                  <a href="{% url 'admin_edit_faculty' f.id %}" class="btn btn-sm btn-outline-warning">Edit Profile</a>
+                {% else %}
+                  <span class="text-muted small">Edit not avail.</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted">No faculty matched this query.</p>
+    {% endif %}
+
+  </div>
+{% endif %}
+
+{% endblock %}

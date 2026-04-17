@@ -276,6 +276,7 @@
 
       <div id="navTabs" class="nav-menu">
         <a href="{% url 'warden_dashboard' %}" class="nav-tab {% if request.path == '/warden/dashboard/' %}active{% endif %}">Dashboard</a>
+        <a href="{% url 'manage_students' %}" class="nav-tab {% if '/warden/manage-students/' in request.path %}active{% endif %}">Students</a>
         <a href="{% url 'complaint_list' %}" class="nav-tab {% if '/warden/complaints/' in request.path %}active{% endif %}">Complaints Queue</a>
         <a href="{% url 'category_list' %}" class="nav-tab {% if '/complaints/categories/' in request.path %}active{% endif %}">Form Builder</a>
       </div>

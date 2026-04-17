@@ -77,7 +77,8 @@ html[data-theme="light"] .badge {
 /* ── Cards & Containers ── */
 html[data-theme="light"] .card,
 html[data-theme="light"] .dashboard-card,
-html[data-theme="light"] .profile-card {
+html[data-theme="light"] .profile-card,
+html[data-theme="light"] .card-dark {
   background: var(--bg-card) !important;
   box-shadow: var(--card-shadow) !important;
   border-color: var(--border-color) !important;
