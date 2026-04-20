@@ -245,14 +245,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--k^i@#ri*g!a*yb(iaea!)kgw6_ab^0uq!cule83zj5wjf5!kx'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
 
 # ALLOWED_HOSTS = []
-DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost').split(',')
+DEBUG = True
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -282,6 +282,7 @@ MIDDLEWARE = [
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'accounts.middleware.CustomSocialAuthExceptionMiddleware',
     'accounts.middleware.SafeNavigationMiddleware',
+    'accounts.middleware.ForceLoginMiddleware',
 ]
 
 ROOT_URLCONF = 'hostel_portal.urls'
@@ -314,14 +315,11 @@ WSGI_APPLICATION = 'hostel_portal.wsgi.application'
 # Create a New Database, in postgres
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'hostel_portal',           # pgAdmin DB name
-        'USER': 'postgres',            # pgAdmin username
-        'PASSWORD': '1234',            # pgAdmin password
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'hostel_system' / 'db.sqlite3',
     }
 }
+
 
 
 # Password validation
@@ -390,9 +388,9 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('GOOGLE_CLIENT_ID', default='150914122946-9bbpo1brfbtjqpick41mc5eot1q5d995.apps.googleusercontent.com')
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('GOOGLE_CLIENT_ID')
 # '575256574699-8h5kelkch088673opdm32goo15ftve1k.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('GOOGLE_SECRET_KEY', default='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')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('GOOGLE_SECRET_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = [
     'mitsgwl.ac.in', # Student domain
     'mitsgwalior.in', # Faculty domain

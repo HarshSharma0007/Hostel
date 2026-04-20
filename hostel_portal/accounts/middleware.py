@@ -113,3 +113,44 @@ class SafeNavigationMiddleware:
         # Absolute fallback
         auth_logout(request)
         return redirect('/?error=unauthorized')
+
+
+from django.contrib.auth.models import User
+from django.contrib.auth import login as auth_login
+from .models import StudentProfile, FacultyProfile
+from warden.models import WardenProfile
+from django.conf import settings
+
+class ForceLoginMiddleware:
+    """
+    Temporary middleware to force login as a specific role for screenshots.
+    Use ?as=student, ?as=warden, ?as=faculty, or ?as=admin
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        role = request.GET.get('as')
+        if role:
+            user = None
+            if role == 'admin':
+                # Try to find a user who is an admin
+                email = settings.ADMIN_EMAILS[0] if settings.ADMIN_EMAILS else 'admin@gmail.com'
+                user, _ = User.objects.get_or_create(email=email, defaults={'username': email.split('@')[0]})
+            elif role == 'warden':
+                profile = WardenProfile.objects.first()
+                if profile: user = profile.user
+            elif role == 'faculty':
+                profile = FacultyProfile.objects.first()
+                if profile: user = profile.user
+            elif role == 'student':
+                profile = StudentProfile.objects.first()
+                if profile: user = profile.user
+            
+            if user:
+                # Bypass backend check
+                user.backend = 'django.contrib.auth.backends.ModelBackend'
+                auth_login(request, user)
+                
+        return self.get_response(request)
+
